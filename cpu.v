@@ -8,20 +8,11 @@ module cpu(
 	wire memory_read, memory_write;
 	wire pc_increment, pc_load;
 	wire cmp_load, cmp_compare;
-	
+	wire lu_passthrough, lu_add, lu_sub, lu_shr, lu_shl, lu_band, lu_bor, lu_bxor, lu_bnegate;
 	wire reg1_read, reg2_read, reg3_write;
 	wire [3:0] reg1_addr, reg2_addr, reg3_addr;
 	
-	memory memory (
-		.clk(clk),
-		.read(memory_read),
-		.write(memory_write),
-		
-		.d_addr(d_addr),
-		.d_bus(d_bus),
-		.i_addr(i_addr),
-		.i_bus(i_bus)
-	);
+	assign led = f_bus[15:8];
 
 	register_file register_file (
 		.clk(clk),
@@ -56,4 +47,21 @@ module cpu(
 		.bus2(d_addr),
 		.flags(f_bus)
 	);
+	
+	logic_unit logic_unit (
+		.passthrought(lu_passthrough),
+		.add(lu_add),
+		.sub(lu_sub),
+		.shr(lu_shr),
+		.shl(lu_shl),
+		.band(lu_band),
+		.bor(lu_bor),
+		.bxor(lu_bxor),
+		.bnegate(lu_bnegate),
+		
+		.bus1(r_bus),
+		.bus2(d_addr),
+		.bus3(d_bus)
+	);
+	
 endmodule

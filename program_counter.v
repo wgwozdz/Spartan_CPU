@@ -4,7 +4,7 @@ module program_counter(
 	input load,
 	
 	input [15:0] d_bus,
-	output reg [15:0] i_addr
+	output reg [15:0] i_addr = 0
 	);
 
 	always @ (posedge clk) begin

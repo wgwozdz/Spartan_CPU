@@ -34,20 +34,17 @@ module control_unit(
 	output [15:0] d_bus
 	);
 
-	initial pc_increment = 0;
-	
 	localparam 
 		fetch = 0,
 		decode = 1,
 		reg_writeback = 2,
 		mem_writeback = 3,
 		flags_writeback = 4,
-		no_writeback = 5,
+		idle = 5,
 		stop = 6,
 		write_literal = 7,
-		asdf = 8,
 		wait_literal = 9;
-	reg [3:0] next_step = asdf;
+	reg [3:0] next_step = idle;
 	
 	reg i_bus_pass = 0;
 	reg flags_pass = 0;
@@ -119,7 +116,7 @@ module control_unit(
 			
 			wait_literal: begin
 				pc_increment <= 0;
-				next_step <= asdf;
+				next_step <= idle;
 			end
 			
 			reg_writeback: begin

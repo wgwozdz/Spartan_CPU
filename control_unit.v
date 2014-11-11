@@ -37,13 +37,9 @@ module control_unit(
 	localparam 
 		fetch = 0,
 		decode = 1,
-		reg_writeback = 2,
-		mem_writeback = 3,
-		flags_writeback = 4,
 		idle = 5,
 		stop = 6,
-		write_literal = 7,
-		wait_literal = 9;
+		finish_literal = 7;
 	reg [3:0] next_step = idle;
 	
 	reg i_bus_pass = 0;
@@ -67,13 +63,12 @@ module control_unit(
 	z_shl = 4'b0111,
 	
 	// 2 Op code instructions.
-	o_cmp = 4'b0001,
-	o_jmp = 4'b0010,
-	o_neg = 4'b0011,
-	o_mov = 4'b0100,
-
-	o_ldm = 4'b0110,
-	o_stm = 4'b0111,
+	o_mov = 4'b0001,
+	o_cmp = 4'b0010,
+	o_jmp = 4'b0011,
+	o_ldm = 4'b0100,
+	o_stm = 4'b0101,
+	o_neg = 4'b0110,
 	
 	// 1 Op code instructions.
 	t_ldl = 4'b0001,
@@ -85,79 +80,40 @@ module control_unit(
 	th_nop = 4'b1111;
 	
 	always @ (posedge clk) begin
+		mem_read <= 0;
+		mem_write <= 0;
+		pc_load <= 0;
+		pc_increment <= 0;
+		cmp_load <= 0;
+		cmp_compare <= 0;
+		lu_passthrough <= 0;
+		lu_add <= 0;
+		lu_sub <= 0;
+		lu_shr <= 0;
+		lu_shl <= 0;
+		lu_band <= 0;
+		lu_bor <= 0;
+		lu_bxor <= 0;
+		lu_bnegate <= 0;
+		reg1_read <= 0;
+		reg2_read <= 0;
+		reg3_write <= 0;
+		i_bus_pass <= 0;
+		flags_pass <= 0;
+
 		case (next_step)
 			idle: begin
-				mem_read <= 0;
-				mem_write <= 0;
-				pc_load <= 0;
-				cmp_load <= 0;
-				cmp_compare <= 0;
-				lu_passthrough <= 0;
-				lu_add <= 0;
-				lu_sub <= 0;
-				lu_shr <= 0;
-				lu_shl <= 0;
-				lu_band <= 0;
-				lu_bor <= 0;
-				lu_bxor <= 0;
-				lu_bnegate <= 0;
-				reg1_read <= 0;
-				reg2_read <= 0;
-				reg3_write <= 0;
-
 				next_step <= fetch;
 			end
 			
-			write_literal: begin
-				pc_increment <= 1;
+			finish_literal: begin
+				i_bus_pass <= 1;
 				reg3_write <= 1;
-				next_step <= wait_literal;
-			end
-			
-			wait_literal: begin
-				pc_increment <= 0;
 				next_step <= idle;
 			end
 			
-			reg_writeback: begin
-				pc_increment <= 0;
-				reg3_write <= 1;
-				next_step <= fetch;
-			end
-			
-			mem_writeback: begin
-				pc_increment <= 0;
-				mem_write <= 1;
-				next_step <= fetch;
-			end
-			
-			flags_writeback: begin
-				pc_increment <= 0;
-				cmp_load <= 1;
-				next_step <= fetch;
-			end
-			
 			fetch: begin
-				mem_read <= 0;
-				mem_write <= 0;
-				pc_load <= 0;
-				cmp_load <= 0;
-				cmp_compare <= 0;
-				lu_passthrough <= 0;
-				lu_add <= 0;
-				lu_sub <= 0;
-				lu_shr <= 0;
-				lu_shl <= 0;
-				lu_band <= 0;
-				lu_bor <= 0;
-				lu_bxor <= 0;
-				lu_bnegate <= 0;
-				reg1_read <= 0;
-				reg2_read <= 0;
-				reg3_write <= 0;
 				pc_increment <= 1;
-				i_bus_pass <= 0;
-				flags_pass <= 0;
 				instruction <= i_bus;
 				next_step <= decode;
 			end
@@ -176,21 +132,23 @@ module control_unit(
 									// 1 op instructions here.
 									
 									t_ldl: begin
-										i_bus_pass <= 1;
+										pc_increment <= 1;
 										reg3_addr <= instruction[3:0];
-										next_step <= write_literal;
+										next_step <= finish_literal;
 									end
 									
 									t_gtf: begin
-										flags_pass <= 1;
 										reg3_addr <= instruction[3:0];
-										next_step <= reg_writeback;
+										flags_pass <= 1;
+										reg3_write <= 1;
+										next_step <= fetch;
 									end
 									
 									t_stf: begin
 										reg1_addr <= instruction[3:0];
 										reg1_read <= 1;
-										next_step <= flags_writeback;
+										cmp_load <= 1;
+										next_step <= fetch;
 									end
 									
 									more_ops: begin

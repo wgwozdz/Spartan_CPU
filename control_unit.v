@@ -119,7 +119,6 @@ module control_unit(
 			end
 			
 			decode: begin
-				pc_increment <= 0;
 				case (instruction[15:12])
 					// 3 op instructions here.
 					
@@ -132,6 +131,16 @@ module control_unit(
 								reg1_read <= 1;
 								lu_passthrough <= 1;
 								reg3_write <= 1;
+								next_step <= idle;
+							end
+							
+							o_cmp: begin
+								reg1_addr <= instruction[7:4];
+								reg2_addr <= instruction[3:0];
+								reg1_read <= 1;
+								reg2_read <= 1;
+								cmp_compare <= 1;
+								next_step <= idle;
 							end
 							
 							more_ops: begin
@@ -147,14 +156,14 @@ module control_unit(
 										reg3_addr <= instruction[3:0];
 										flags_pass <= 1;
 										reg3_write <= 1;
-										next_step <= fetch;
+										next_step <= idle;
 									end
 									
 									t_stf: begin
 										reg1_addr <= instruction[3:0];
 										reg1_read <= 1;
 										cmp_load <= 1;
-										next_step <= fetch;
+										next_step <= idle;
 									end
 									
 									more_ops: begin

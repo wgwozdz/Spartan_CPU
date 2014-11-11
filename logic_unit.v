@@ -17,7 +17,7 @@ module logic_unit(
 	//TODO: handle overflow flag? maybe assign each clock cycle.
 	
 	assign bus3 = 
-	passthrough ? bus3 : 
+	passthrough ? bus1 : 
 	add ? bus1 + bus2 :
 	sub ? bus1 - bus2 :
 	shr ? bus1 >> bus2 :

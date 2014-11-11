@@ -18,13 +18,19 @@ module two_op_memory(
 	assign d_bus = read ? mem[d_addr] : 16'bz;
 
 	initial begin
-		mem[0] = 16'b1111111100011010; // Load literal
-		mem[1] = 16'b1010101010101010; // Literal
-		mem[2] = 16'b1111111100111010; // Setf a
-		mem[3] = 16'b1111111100101111; // Getf f
-		mem[4] = 16'b1111111100111111; // Setf f
-		mem[5] = 16'b1111000111111110; // Mov f,e
-		mem[6] = 16'b1111111100111110; // Setf e
+		mem[ 0] = 16'b1111111100011010; // Ldl ra
+		mem[ 1] = 16'b1010101010101010; // Literal
+		mem[ 2] = 16'b1111111100010000; // Ldl r0
+		mem[ 3] = 16'b0000000000000000; // Literal
+		mem[ 4] = 16'b1111111100111010; // Setf ra
+		mem[ 5] = 16'b1111111100010001; // Ldl r1
+		mem[ 6] = 16'b0000000000000001; // Literal
+		mem[ 7] = 16'b1111000100000010; // Mov r0,r2
+		mem[ 8] = 16'b1111111100010011; // Ldl r3
+		mem[ 9] = 16'b0000000000000011; // Literal
+		mem[10] = 16'b1111001000000001; // cmp r0, r1
+		mem[11] = 16'b1111111100011111; // Ldl rf
+		mem[12] = 16'b1111111111111111; // Literal
 	end
 	
 	always @ (posedge clk) begin

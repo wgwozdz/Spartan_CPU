@@ -51,7 +51,7 @@ module comparator_test;
 		clk = 0;
 		compare = 0;
 		#1;
-		if (flags[3:0] != 4'b0001) begin $display("Flags not expected."); $display(flags[3:0]); end
+		if (flags[1:0] != 2'b01) begin $display("Flags not expected."); $display(flags[1:0]); end
 		
 		bus1 = 1;
 		bus2 = 0;
@@ -62,7 +62,7 @@ module comparator_test;
 		clk = 0;
 		compare = 0;
 		#1;
-		if (flags[3:0] != 4'b1010) begin $display("Flags not expected."); $display(flags[3:0]); end
+		if (flags[1:0] != 2'b10) begin $display("Flags not expected."); $display(flags[1:0]); end
 		
 		bus1 = 0;
 		bus2 = 1;
@@ -73,7 +73,7 @@ module comparator_test;
 		clk = 0;
 		compare = 0;
 		#1;
-		if (flags[3:0] != 4'b0110) begin $display("Flags not expected."); $display(flags[3:0]); end
+		if (flags[1:0] != 2'b00) begin $display("Flags not expected."); $display(flags[1:0]); end
 		
 		$display("Test successful if no messages.");
 	end

@@ -126,11 +126,17 @@ module control_unit(
 					more_ops: begin
 						case (instruction[11:8])
 							// 2 op instructions here.
+							o_mov: begin
+								reg1_addr <= instruction[7:4];
+								reg3_addr <= instruction[3:0];
+								reg1_read <= 1;
+								lu_passthrough <= 1;
+								reg3_write <= 1;
+							end
 							
 							more_ops: begin
 								case (instruction[7:4])
 									// 1 op instructions here.
-									
 									t_ldl: begin
 										pc_increment <= 1;
 										reg3_addr <= instruction[3:0];

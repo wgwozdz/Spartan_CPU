@@ -1,5 +1,3 @@
-`timescale 1ns / 1ps
-
 module control_unit(
 	input clk,
 	
@@ -37,6 +35,7 @@ module control_unit(
 	localparam 
 		fetch = 0,
 		decode = 1,
+		finish_jmp = 2,
 		idle = 5,
 		stop = 6,
 		finish_literal = 7;
@@ -112,6 +111,10 @@ module control_unit(
 				next_step <= idle;
 			end
 			
+			finish_jmp: begin
+				next_step <= idle;
+			end
+			
 			fetch: begin
 				pc_increment <= 1;
 				instruction <= i_bus;
@@ -140,6 +143,47 @@ module control_unit(
 								reg1_read <= 1;
 								reg2_read <= 1;
 								cmp_compare <= 1;
+								next_step <= idle;
+							end
+							
+							o_jmp: begin
+								reg1_addr <= instruction[3:0];
+								reg1_read <= 1;
+								lu_passthrough <= 1;
+								if ((instruction[4] &&  flags[0]) || // Equals
+									 (instruction[5] && ~flags[1]) || // Less than
+									 (instruction[6] &&  flags[1]))   // Greater than
+								begin
+									pc_load <= 1;	
+								end
+								next_step <= finish_jmp;
+							end
+							
+							o_ldm: begin
+								reg2_addr <= instruction[7:4];
+								reg3_addr <= instruction[3:0];
+								reg2_read <= 1;
+								mem_read <= 1;
+								reg3_write <= 1;
+								next_step <= idle;
+							end
+							
+							o_stm: begin
+								reg1_addr <= instruction[3:0];
+								reg2_addr <= instruction[7:4];
+								reg1_read <= 1;
+								reg2_read <= 1;
+								lu_passthrough <= 1;
+								mem_write <= 1;
+								next_step <= idle;
+							end
+							
+							o_neg: begin
+								reg1_addr <= instruction[7:4];
+								reg3_addr <= instruction[3:0];
+								reg1_read <= 1;
+								lu_bnegate <= 1;
+								reg3_write <= 1;
 								next_step <= idle;
 							end
 							

@@ -93,6 +93,5 @@ Temporary Items
 *.dll
 *.dat
 isim/*
-netgen/*
 *.ini
 *.wdb

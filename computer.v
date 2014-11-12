@@ -1,5 +1,5 @@
 module computer(
-	input clk,  // synthesis attribute PERIOD clk "50 MHz"
+	input clk,
 	output [7:0] led
 	);
 

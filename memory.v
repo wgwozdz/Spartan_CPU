@@ -12,17 +12,16 @@ module memory(
 	output reg [15:0] i_bus
 	);
 
-	//reg [15:0] mem [65535:0];
-	reg [15:0] mem [127:0];
+	reg [15:0] mem [255:0];
 	reg [15:0] d_mem;
 	assign d_bus = read ? d_mem : 16'bz;
 
 	integer i;
 	initial begin
-		for (i = 0; i < 128; i = i + 1) begin
+		for (i = 0; i < 256; i = i + 1) begin
 			mem[i] = 16'b0;
 		end
-				mem[0] = 16'b1111111100010000; // Ldl r0
+		mem[0] = 16'b1111111100010000; // Ldl r0
 		mem[1] = 16'b1010101010101010; // Literal
 		mem[2] = 16'b1111111100010001; // Ldl r1
 		mem[3] = 16'b0000000000001111; // Literal

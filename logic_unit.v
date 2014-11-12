@@ -18,14 +18,14 @@ module logic_unit(
 	
 	assign bus3 = 
 	passthrough ? bus1 : 
+	bnegate ? ~bus1 :
 	add ? bus1 + bus2 :
 	sub ? bus1 - bus2 :
-	shr ? bus1 >> bus2 :
-	shl ? bus1 << bus2 :
 	band ? bus1 & bus2 :
 	bor ? bus1 | bus2 :
 	bxor ? bus1 ^ bus2:
-	bnegate ? ~bus1 :
+	shr ? bus1 >> bus2 :
+	shl ? bus1 << bus2 :
 	16'bz;
 
 endmodule

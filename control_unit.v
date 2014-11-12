@@ -101,6 +101,8 @@ module control_unit(
 		flags_pass <= 0;
 
 		case (next_step)
+			stop: begin end
+		
 			idle: begin
 				next_step <= fetch;
 			end
@@ -124,6 +126,82 @@ module control_unit(
 			decode: begin
 				case (instruction[15:12])
 					// 3 op instructions here.
+					z_add: begin
+						reg1_addr <= instruction[11:8];
+						reg2_addr <= instruction[7:4];
+						reg3_addr <= instruction[3:0];
+						reg1_read <= 1;
+						reg2_read <= 1;
+						reg3_write <= 1;
+						lu_add <= 1;
+						next_step <= idle;
+					end
+					
+					z_sub: begin
+						reg1_addr <= instruction[11:8];
+						reg2_addr <= instruction[7:4];
+						reg3_addr <= instruction[3:0];
+						reg1_read <= 1;
+						reg2_read <= 1;
+						reg3_write <= 1;
+						lu_sub <= 1;
+						next_step <= idle;
+					end
+					
+					z_and: begin
+						reg1_addr <= instruction[11:8];
+						reg2_addr <= instruction[7:4];
+						reg3_addr <= instruction[3:0];
+						reg1_read <= 1;
+						reg2_read <= 1;
+						reg3_write <= 1;
+						lu_band <= 1;
+						next_step <= idle;
+					end
+					
+					z_or: begin
+						reg1_addr <= instruction[11:8];
+						reg2_addr <= instruction[7:4];
+						reg3_addr <= instruction[3:0];
+						reg1_read <= 1;
+						reg2_read <= 1;
+						reg3_write <= 1;
+						lu_bor <= 1;
+						next_step <= idle;
+					end
+					
+					z_xor: begin
+						reg1_addr <= instruction[11:8];
+						reg2_addr <= instruction[7:4];
+						reg3_addr <= instruction[3:0];
+						reg1_read <= 1;
+						reg2_read <= 1;
+						reg3_write <= 1;
+						lu_bxor <= 1;
+						next_step <= idle;
+					end
+					
+					z_shr: begin
+						reg1_addr <= instruction[11:8];
+						reg2_addr <= instruction[7:4];
+						reg3_addr <= instruction[3:0];
+						reg1_read <= 1;
+						reg2_read <= 1;
+						reg3_write <= 1;
+						lu_shr <= 1;
+						next_step <= idle;
+					end
+					
+					z_shl: begin
+						reg1_addr <= instruction[11:8];
+						reg2_addr <= instruction[7:4];
+						reg3_addr <= instruction[3:0];
+						reg1_read <= 1;
+						reg2_read <= 1;
+						reg3_write <= 1;
+						lu_shl <= 1;
+						next_step <= idle;
+					end
 					
 					more_ops: begin
 						case (instruction[11:8])

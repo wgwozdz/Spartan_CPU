@@ -1,10 +1,10 @@
 module computer(
-	input clk,
+	input clk,  // synthesis attribute PERIOD clk "50 MHz"
 	output [7:0] led
 	);
 
-	wire memory_read;
-	wire memory_write;
+	wire mem_read;
+	wire mem_write;
 	wire [15:0] d_addr;
 	wire [15:0] i_addr;
 	wire [15:0] i_bus;
@@ -12,8 +12,8 @@ module computer(
 	
 	memory mem (
 		.clk(clk),
-		.read(memory_read),
-		.write(memory_write),
+		.read(mem_read),
+		.write(mem_write),
 		.i_bus(i_bus), 
 		.d_bus(d_bus), 
 		.d_addr(d_addr), 
@@ -21,11 +21,11 @@ module computer(
 	);
 
 	// Instantiate the Unit Under Test (UUT)
-	cpu uut (
+	cpu cpu (
 		.clk(clk), 
 		.led(led), 
-		.memory_read(memory_read), 
-		.memory_write(memory_write), 
+		.mem_read(mem_read), 
+		.mem_write(mem_write), 
 		.i_bus(i_bus), 
 		.d_bus(d_bus), 
 		.d_addr(d_addr), 

@@ -15,22 +15,22 @@ module two_op_memory(
 	);
 
 	reg [15:0] mem [65535:0];
-	assign d_bus = read ? mem[d_addr] : 16'bz;
+	reg [15:0] d_mem;
+	assign d_bus = read ? d_mem : 16'bz;
 
 	initial begin
 		mem[0] = 16'b1111111100010000; // Ldl r0
-		mem[1] = 16'b0000000000000000; // Literal
+		mem[1] = 16'b1010101010101010; // Literal
 		mem[2] = 16'b1111111100010001; // Ldl r1
-		mem[3] = 16'b0000000000000001; // Literal
-		mem[4] = 16'b1111111100010011; // Ldl r3
-		mem[5] = 16'b0000000000000110; // Literal
-		mem[6] = 16'b0001000000010000; // Add r0,r1,r0
-		mem[7] = 16'b1111111100110000; // Setf r0
-		mem[8] = 16'b1111001101110011; // Jmp r3
+		mem[3] = 16'b1111111111111111; // Literal
+		mem[4] = 16'b1111010100000001; // Stm r0,r1
+		mem[5] = 16'b1111010000010010; // Ldm r1,r2
+		mem[6] = 16'b1111111100110010; // Setf r0
 	end
 	
 	always @ (posedge clk) begin
 		i_bus <= mem[i_addr];
+		d_mem <= mem[d_addr];
 		
 		if (write) begin
 			mem[d_addr] <= d_bus;
@@ -46,8 +46,8 @@ module two_op_cpu_test;
 
 	// Outputs
 	wire [7:0] led;
-	wire memory_read;
-	wire memory_write;
+	wire mem_read;
+	wire mem_write;
 	wire [15:0] d_addr;
 	wire [15:0] i_addr;
 	wire [15:0] i_bus;
@@ -57,8 +57,8 @@ module two_op_cpu_test;
 
 	two_op_memory mem (
 		.clk(clk),
-		.read(memory_read),
-		.write(memory_write),
+		.read(mem_read),
+		.write(mem_write),
 		.i_bus(i_bus), 
 		.d_bus(d_bus), 
 		.d_addr(d_addr), 
@@ -69,8 +69,8 @@ module two_op_cpu_test;
 	cpu uut (
 		.clk(clk), 
 		.led(led), 
-		.memory_read(memory_read), 
-		.memory_write(memory_write), 
+		.mem_read(mem_read), 
+		.mem_write(mem_write), 
 		.i_bus(i_bus), 
 		.d_bus(d_bus), 
 		.d_addr(d_addr), 

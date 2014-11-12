@@ -3,8 +3,8 @@ module cpu(
 	output [7:0] led,
 	
 	// Memory interface
-	output memory_read,
-	output memory_write,
+	output mem_read,
+	output mem_write,
 	input [15:0] i_bus,
 	inout [15:0] d_bus,
 	output [15:0] d_addr,
@@ -74,8 +74,8 @@ module cpu(
 	control_unit control_unit (
 		.clk(clk),
 		
-		.mem_read(memory_read),
-		.mem_write(memory_write),
+		.mem_read(mem_read),
+		.mem_write(mem_write),
 		
 		.pc_increment(pc_increment),
 		.pc_load(pc_load),

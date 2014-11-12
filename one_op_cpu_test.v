@@ -42,8 +42,8 @@ module one_op_cpu_test;
 
 	// Outputs
 	wire [7:0] led;
-	wire memory_read;
-	wire memory_write;
+	wire mem_read;
+	wire mem_write;
 	wire [15:0] d_addr;
 	wire [15:0] i_addr;
 	wire [15:0] i_bus;
@@ -53,8 +53,8 @@ module one_op_cpu_test;
 
 	one_op_memory mem (
 		.clk(clk),
-		.read(memory_read),
-		.write(memory_write),
+		.read(mem_read),
+		.write(mem_write),
 		.i_bus(i_bus), 
 		.d_bus(d_bus), 
 		.d_addr(d_addr), 
@@ -65,8 +65,8 @@ module one_op_cpu_test;
 	cpu uut (
 		.clk(clk), 
 		.led(led), 
-		.memory_read(memory_read), 
-		.memory_write(memory_write), 
+		.mem_read(mem_read), 
+		.mem_write(mem_write), 
 		.i_bus(i_bus), 
 		.d_bus(d_bus), 
 		.d_addr(d_addr), 

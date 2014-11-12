@@ -36,9 +36,10 @@ module control_unit(
 		fetch = 0,
 		decode = 1,
 		finish_jmp = 2,
+		finish_ldm = 3,
+		finish_ldl = 4,
 		idle = 5,
-		stop = 6,
-		finish_literal = 7;
+		stop = 6;
 	reg [3:0] next_step = idle;
 	
 	reg i_bus_pass = 0;
@@ -107,13 +108,19 @@ module control_unit(
 				next_step <= fetch;
 			end
 			
-			finish_literal: begin
+			finish_ldl: begin
 				i_bus_pass <= 1;
 				reg3_write <= 1;
 				next_step <= idle;
 			end
 			
 			finish_jmp: begin
+				next_step <= idle;
+			end
+			
+			finish_ldm: begin
+				mem_read <= 1;
+				reg3_write <= 1;
 				next_step <= idle;
 			end
 			
@@ -241,14 +248,12 @@ module control_unit(
 								reg2_addr <= instruction[7:4];
 								reg3_addr <= instruction[3:0];
 								reg2_read <= 1;
-								mem_read <= 1;
-								reg3_write <= 1;
-								next_step <= idle;
+								next_step <= finish_ldm;
 							end
 							
 							o_stm: begin
-								reg1_addr <= instruction[3:0];
-								reg2_addr <= instruction[7:4];
+								reg1_addr <= instruction[7:4];
+								reg2_addr <= instruction[3:0];
 								reg1_read <= 1;
 								reg2_read <= 1;
 								lu_passthrough <= 1;
@@ -271,7 +276,7 @@ module control_unit(
 									t_ldl: begin
 										pc_increment <= 1;
 										reg3_addr <= instruction[3:0];
-										next_step <= finish_literal;
+										next_step <= finish_ldl;
 									end
 									
 									t_gtf: begin

@@ -2,6 +2,8 @@ module logic_unit(
 	input passthrough,
 	input add,
 	input sub,
+	input inc,
+	input dec,
 	input shr,
 	input shl,
 	input band,
@@ -21,6 +23,8 @@ module logic_unit(
 	bnegate ? ~bus1 :
 	add ? bus1 + bus2 :
 	sub ? bus1 - bus2 :
+	inc ? bus1 + 1 :
+	dec ? bus1 - 1 :
 	band ? bus1 & bus2 :
 	bor ? bus1 | bus2 :
 	bxor ? bus1 ^ bus2:

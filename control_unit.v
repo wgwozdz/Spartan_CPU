@@ -13,6 +13,8 @@ module control_unit(
 	output reg lu_passthrough = 0,
 	output reg lu_add = 0,
 	output reg lu_sub = 0,
+	output reg lu_inc = 0,
+	output reg lu_dec = 0,
 	output reg lu_shr = 0,
 	output reg lu_shl = 0,
 	output reg lu_band = 0,
@@ -74,6 +76,8 @@ module control_unit(
 	t_ldl = 4'b0001,
 	t_gtf = 4'b0010,
 	t_stf = 4'b0011,
+	t_inc = 4'b0100,
+	t_dec = 4'b0101,
 	
 	// 0 Op code instructions.
 	
@@ -89,6 +93,8 @@ module control_unit(
 		lu_passthrough <= 0;
 		lu_add <= 0;
 		lu_sub <= 0;
+		lu_inc <= 0;
+		lu_dec <= 0;
 		lu_shr <= 0;
 		lu_shl <= 0;
 		lu_band <= 0;
@@ -290,6 +296,24 @@ module control_unit(
 										reg1_addr <= instruction[3:0];
 										reg1_read <= 1;
 										cmp_load <= 1;
+										next_step <= idle;
+									end
+									
+									t_inc: begin
+										reg1_addr <= instruction[3:0];
+										reg3_addr <= instruction[3:0];
+										reg1_read <= 1;
+										lu_inc <= 1;
+										reg3_write <= 1;
+										next_step <= idle;
+									end
+									
+									t_dec: begin
+										reg1_addr <= instruction[3:0];
+										reg3_addr <= instruction[3:0];
+										reg1_read <= 1;
+										lu_dec <= 1;
+										reg3_write <= 1;
 										next_step <= idle;
 									end
 									

@@ -15,7 +15,7 @@ module cpu(
 
 	wire pc_increment, pc_load;
 	wire cmp_load, cmp_compare;
-	wire lu_passthrough, lu_add, lu_sub, lu_shr, lu_shl, lu_band, lu_bor, lu_bxor, lu_bnegate;
+	wire lu_passthrough, lu_add, lu_sub, lu_inc, lu_dec, lu_shr, lu_shl, lu_band, lu_bor, lu_bxor, lu_bnegate;
 	wire reg1_read, reg2_read, reg3_write;
 	wire [3:0] reg1_addr, reg2_addr, reg3_addr;
 	
@@ -59,6 +59,8 @@ module cpu(
 		.passthrough(lu_passthrough),
 		.add(lu_add),
 		.sub(lu_sub),
+		.inc(lu_inc),
+		.dec(lu_dec),
 		.shr(lu_shr),
 		.shl(lu_shl),
 		.band(lu_band),
@@ -86,6 +88,8 @@ module cpu(
 		.lu_passthrough(lu_passthrough),
 		.lu_add(lu_add),
 		.lu_sub(lu_sub),
+		.lu_inc(lu_inc),
+		.lu_dec(lu_dec),
 		.lu_shr(lu_shr),
 		.lu_shl(lu_shl),
 		.lu_band(lu_band),

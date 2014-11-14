@@ -26,6 +26,8 @@ module two_op_memory(
 		mem[4] = 16'b1111010100000001; // Stm r0,r1
 		mem[5] = 16'b1111010000010010; // Ldm r1,r2
 		mem[6] = 16'b1111111100110010; // Setf r0
+		mem[7] = 16'b1111111101000001;
+		mem[8] = 16'b1111111101010001;
 	end
 	
 	always @ (posedge clk) begin

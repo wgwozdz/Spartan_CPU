@@ -4,6 +4,13 @@ module control_unit(
 	output reg mem_read = 0,
 	output reg mem_write = 0,
 	
+	output reg io_read = 0,
+	output reg io_write = 0,
+	output reg io_push = 0,
+	output reg io_addr_read = 0,
+	output reg [3:0] io_addr = 0,
+	
+	
 	output reg pc_increment = 0,
 	output reg pc_load = 0,
 	
@@ -40,6 +47,7 @@ module control_unit(
 		finish_jmp = 2,
 		finish_ldm = 3,
 		finish_ldl = 4,
+		finish_ioi = 7,
 		idle = 5,
 		stop = 6;
 	reg [3:0] next_step = idle;
@@ -71,6 +79,8 @@ module control_unit(
 	o_ldm = 4'b0100,
 	o_stm = 4'b0101,
 	o_neg = 4'b0110,
+	o_ioi = 4'b1000,
+	o_ioo = 4'b1001,
 	
 	// 1 Op code instructions.
 	t_ldl = 4'b0001,
@@ -86,6 +96,10 @@ module control_unit(
 	always @ (posedge clk) begin
 		mem_read <= 0;
 		mem_write <= 0;
+		io_addr_read <= 0;
+		io_read <= 0;
+		io_write <= 0;
+		io_push <= 0;
 		pc_load <= 0;
 		pc_increment <= 0;
 		cmp_load <= 0;
@@ -126,6 +140,13 @@ module control_unit(
 			
 			finish_ldm: begin
 				mem_read <= 1;
+				reg3_write <= 1;
+				next_step <= idle;
+			end
+			
+			finish_ioi: begin
+				io_addr_read <= 1;
+				io_push <= 1;
 				reg3_write <= 1;
 				next_step <= idle;
 			end
@@ -273,6 +294,24 @@ module control_unit(
 								reg1_read <= 1;
 								lu_bnegate <= 1;
 								reg3_write <= 1;
+								next_step <= idle;
+							end
+							
+							o_ioi: begin
+								io_addr <= instruction[7:4];
+								reg3_addr <= instruction[3:0];
+								io_addr_read <= 1;
+								io_read <= 1;
+								next_step <= finish_ioi;
+							end
+							
+							o_ioo: begin
+								io_addr <= instruction[7:4];
+								reg1_addr <= instruction[3:0];
+								io_addr_read <= 1;
+								reg1_read <= 1;
+								lu_passthrough <= 1;
+								io_write <= 1;
 								next_step <= idle;
 							end
 							

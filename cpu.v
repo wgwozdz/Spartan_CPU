@@ -1,10 +1,16 @@
 module cpu(
 	input clk,
-	output [7:0] led,
 	
 	// Memory interface
 	output mem_read,
 	output mem_write,
+	
+	// IO interface
+	output io_read,
+	output io_write,
+	output io_push,
+	
+	// Buses
 	input [15:0] i_bus,
 	inout [15:0] d_bus,
 	output [15:0] d_addr,
@@ -18,8 +24,8 @@ module cpu(
 	wire lu_passthrough, lu_add, lu_sub, lu_inc, lu_dec, lu_shr, lu_shl, lu_band, lu_bor, lu_bxor, lu_bnegate;
 	wire reg1_read, reg2_read, reg3_write;
 	wire [3:0] reg1_addr, reg2_addr, reg3_addr;
-	
-	assign led = f_bus[15:8];
+	wire io_addr_read;
+	wire [3:0] io_addr;
 
 	register_file register_file (
 		.clk(clk),
@@ -73,11 +79,23 @@ module cpu(
 		.bus3(d_bus)
 	);
 	
+	io_addresser io_addresser (
+		.io_addr_read(io_addr_read),
+		.io_addr(io_addr),
+		.d_addr(d_addr)
+	);
+	
 	control_unit control_unit (
 		.clk(clk),
 		
 		.mem_read(mem_read),
 		.mem_write(mem_write),
+		
+		.io_read(io_read),
+		.io_write(io_write),
+		.io_push(io_push),
+		.io_addr_read(io_addr_read),
+		.io_addr(io_addr),
 		
 		.pc_increment(pc_increment),
 		.pc_load(pc_load),

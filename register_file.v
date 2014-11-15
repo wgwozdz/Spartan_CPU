@@ -9,7 +9,7 @@ module register_file(
 	output [15:0] reg1_bus,
 	output [15:0] reg2_bus,
 	
-	input   [3:0] reg3_addr, // register written back to
+	input   [3:0] reg3_addr, // register from D_Bus
 	input  [15:0] reg3_bus
 	);
 

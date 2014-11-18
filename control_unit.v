@@ -48,6 +48,8 @@ module control_unit(
 		finish_ldm = 3,
 		finish_ldl = 4,
 		finish_ioi = 7,
+		finish_sti = 8,
+		finish_dld = 9,
 		idle = 5,
 		stop = 6;
 	reg [3:0] next_step = idle;
@@ -81,6 +83,10 @@ module control_unit(
 	o_neg = 4'b0110,
 	o_ioi = 4'b1000,
 	o_ioo = 4'b1001,
+	o_sti = 4'b1010, // Store and increment
+	o_dld = 4'b1011, // Decrement and load
+	//o_std = 4'b1100,
+	//o_ild = 4'b1101,
 	
 	// 1 Op code instructions.
 	t_ldl = 4'b0001,
@@ -149,6 +155,20 @@ module control_unit(
 				io_push <= 1;
 				reg3_write <= 1;
 				next_step <= idle;
+			end
+			
+			finish_sti: begin
+				reg1_addr <= instruction[7:4];
+				reg1_read <= 1;
+				lu_inc <= 1;
+				reg3_write <= 1;
+				next_step <= idle;
+			end
+			
+			finish_dld: begin
+				reg3_addr <= instruction[3:0];
+				reg2_read <= 1;
+				next_step <= finish_ldm;
 			end
 			
 			fetch: begin
@@ -279,8 +299,8 @@ module control_unit(
 							end
 							
 							o_stm: begin
-								reg1_addr <= instruction[7:4];
-								reg2_addr <= instruction[3:0];
+								reg1_addr <= instruction[3:0];
+								reg2_addr <= instruction[7:4];
 								reg1_read <= 1;
 								reg2_read <= 1;
 								lu_passthrough <= 1;
@@ -313,6 +333,27 @@ module control_unit(
 								lu_passthrough <= 1;
 								io_write <= 1;
 								next_step <= idle;
+							end
+							
+							o_sti: begin
+								reg1_addr <= instruction[3:0];
+								reg2_addr <= instruction[7:4];
+								reg3_addr <= instruction[7:4];
+								reg1_read <= 1;
+								reg2_read <= 1;
+								lu_passthrough <= 1;
+								mem_write <= 1;
+								next_step <= finish_sti;
+							end
+							
+							o_dld: begin
+								reg1_addr <= instruction[7:4];
+								reg2_addr <= instruction[7:4];
+								reg3_addr <= instruction[7:4];
+								reg1_read <= 1;
+								lu_dec <= 1;
+								reg3_write <= 1;
+								next_step <= finish_dld;
 							end
 							
 							more_ops: begin

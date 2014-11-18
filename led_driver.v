@@ -2,8 +2,8 @@ module led_driver(
 	input clk,
 	input read,
 	input write,
-	input [7:0] in_bus,
-	output reg [7:0] out_bus,
+	input [15:0] in_bus,
+	output reg [15:0] out_bus,
 	output reg [7:0] led = 0
 	);
 	

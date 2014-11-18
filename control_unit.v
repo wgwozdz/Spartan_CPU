@@ -9,13 +9,18 @@ module control_unit(
 	output reg io_push = 0,
 	output reg io_addr_read = 0,
 	output reg [3:0] io_addr = 0,
-	
+	output reg io_store_retaddr = 0,
+	output reg io_read_retaddr = 0,
+	output reg io_ints = 0,
 	
 	output reg pc_increment = 0,
 	output reg pc_load = 0,
+	output reg pc_push = 0,
 	
 	output reg cmp_load = 0,
 	output reg cmp_compare = 0,
+	output reg cmp_mask_int = 0,
+	output reg cmp_unmask_int = 0,
 	
 	output reg lu_passthrough = 0,
 	output reg lu_add = 0,
@@ -85,8 +90,6 @@ module control_unit(
 	o_ioo = 4'b1001,
 	o_sti = 4'b1010, // Store and increment
 	o_dld = 4'b1011, // Decrement and load
-	//o_std = 4'b1100,
-	//o_ild = 4'b1101,
 	
 	// 1 Op code instructions.
 	t_ldl = 4'b0001,
@@ -94,9 +97,13 @@ module control_unit(
 	t_stf = 4'b0011,
 	t_inc = 4'b0100,
 	t_dec = 4'b0101,
+	t_gin = 4'b0110, // Get interrupts.
+	//t_rri = 4'b0111, // Get interrupt handler return address. Maybe not necessary for now.
+	// Mask/Unmask devices?
+	//TODO: jmp to dec-mem?
 	
 	// 0 Op code instructions.
-	
+	th_rit = 4'b0111, // Return to interrupted address, enable ints
 	th_nop = 4'b1111;
 	
 	always @ (posedge clk) begin
@@ -106,10 +113,16 @@ module control_unit(
 		io_read <= 0;
 		io_write <= 0;
 		io_push <= 0;
+		io_store_retaddr = 0;
+		io_read_retaddr = 0;
+		io_ints <= 0;
 		pc_load <= 0;
 		pc_increment <= 0;
+		pc_push <= 0;
 		cmp_load <= 0;
 		cmp_compare <= 0;
+		cmp_mask_int = 0;
+		cmp_unmask_int = 0;
 		lu_passthrough <= 0;
 		lu_add <= 0;
 		lu_sub <= 0;
@@ -397,10 +410,24 @@ module control_unit(
 										next_step <= idle;
 									end
 									
+									t_gin begin:
+										reg3_addr <= instruction[3:0];
+										io_ints <= 1;
+										reg3_write <= 1;
+										next_step <= idle;
+									end
+									
 									more_ops: begin
 										case (instruction[3:0])
 											// 0 op instructions here.
 											more_ops: next_step <= idle;
+											
+											th_rit: begin
+												io_read_retaddr <= 1;
+												pc_load <= 1;
+												cmp_unmask_int <= 1;
+												next_step <= idle;
+											end
 											
 											default: next_step <= stop;
 										endcase

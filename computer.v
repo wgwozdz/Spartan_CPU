@@ -12,6 +12,9 @@ module computer(
 	wire io_read;
 	wire io_write;
 	wire io_push;
+	wire io_store_retaddr;
+	wire io_read_retaddr;
+	wire io_ints;
 	wire [15:0] d_addr;
 	wire [15:0] i_addr;
 	wire [15:0] i_bus;
@@ -32,6 +35,7 @@ module computer(
 		.read(io_read),
 		.write(io_write),
 		.push(io_push),
+		.ints(io_ints),
 		.d_addr(d_addr),
 		.d_bus(d_bus),
 		.led(led),

@@ -9,6 +9,9 @@ module cpu(
 	output io_read,
 	output io_write,
 	output io_push,
+	output io_store_retaddr,
+	output io_read_retaddr,
+	output io_ints,
 	
 	// Buses
 	input [15:0] i_bus,
@@ -19,8 +22,8 @@ module cpu(
 
 	wire [15:0] r_bus, f_bus;
 
-	wire pc_increment, pc_load;
-	wire cmp_load, cmp_compare;
+	wire pc_increment, pc_load, pc_push;
+	wire cmp_load, cmp_compare, cmp_mask_int, cmp_unmask_int;
 	wire lu_passthrough, lu_add, lu_sub, lu_inc, lu_dec, lu_shr, lu_shl, lu_band, lu_bor, lu_bxor, lu_bnegate;
 	wire reg1_read, reg2_read, reg3_write;
 	wire [3:0] reg1_addr, reg2_addr, reg3_addr;
@@ -46,6 +49,7 @@ module cpu(
 		.clk(clk),
 		.increment(pc_increment),
 		.load(pc_load),
+		.push(pc_push),
 		
 		.i_addr(i_addr),
 		.d_bus(d_bus)
@@ -55,6 +59,8 @@ module cpu(
 		.clk(clk),
 		.load(cmp_load),
 		.compare(cmp_compare),
+		.mask_int(cmp_mask_int),
+		.unmask_int(cmp_unmask_int),
 		
 		.bus1(r_bus),
 		.bus2(d_addr),
@@ -96,12 +102,18 @@ module cpu(
 		.io_push(io_push),
 		.io_addr_read(io_addr_read),
 		.io_addr(io_addr),
+		.io_store_retaddr(io_store_retaddr),
+		.io_read_retaddr(io_read_retaddr),
+		.io_ints(io_ints),
 		
 		.pc_increment(pc_increment),
 		.pc_load(pc_load),
+		.pc_push(pc_push),
 		
 		.cmp_load(cmp_load),
 		.cmp_compare(cmp_compare),
+		.cmp_mask_int(cmp_mask_int),
+		.cmp_unmask_int(cmp_unmask_int),
 		
 		.lu_passthrough(lu_passthrough),
 		.lu_add(lu_add),

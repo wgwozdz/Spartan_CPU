@@ -3,6 +3,11 @@ module io_bridge(
 	input read,
 	input write,
 	input push,
+	input ints,
+	//input mask, TODO: restore masking stuff.
+	//input unmask,
+	input store_retaddr,
+	input read_retaddr,
 	input [15:0] d_addr,
 	inout [15:0] d_bus,
 	
@@ -14,6 +19,7 @@ module io_bridge(
 	output [7:4] lcd_d
 	);
 
+	reg [15:0] ret_addr;
 	wire [15:0] out_store;
 	
 	wire led_read, led_write;
@@ -41,8 +47,14 @@ module io_bridge(
 		.lcd_e(lcd_e),
 		.lcd_d(lcd_d)
 	);
-
-	assign d_bus = push ? out_store : 16'bz;
+	
+	//reg [15:0] masks = 0;
+	wire [15:0] interrupts = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // & ~masks;
+	assign d_bus = 
+		push ? out_store : 
+		interrupts ? interrupts :
+		read_retaddr ? retaddr :
+		16'bz;
 
 	// Wire output to IOs
 	assign out_store = 
@@ -53,5 +65,16 @@ module io_bridge(
 	// Wire IOs to inputs
 	assign {led_read, led_write, led_in} = d_addr[0] ? {read, write, d_bus} : 0;
 	assign {lcd_read, lcd_write, lcd_in} = d_addr[1] ? {read, write, d_bus} : 0;
+
+	always @ (posedge clk) begin
+		if (store_retaddr) begin
+			retaddr <= d_bus;
+		end
+		/*if (mask) begin
+			masks <= masks | d_bus;
+		end else if (unmask) begin
+			masks <= masks & ~d_bus;
+		end*/
+	end
 
 endmodule

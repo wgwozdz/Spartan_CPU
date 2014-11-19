@@ -10,8 +10,10 @@ module control_unit(
 	output reg io_addr_read = 0,
 	output reg [3:0] io_addr = 0,
 	output reg io_store_retaddr = 0,
-	output reg io_read_retaddr = 0,
-	output reg io_ints = 0,
+	output reg io_push_retaddr = 0,
+	output reg io_push_ints = 0,
+	output reg io_push_int_addr = 0,
+	input io_interrupt,
 	
 	output reg pc_increment = 0,
 	output reg pc_load = 0,
@@ -55,6 +57,7 @@ module control_unit(
 		finish_ioi = 7,
 		finish_sti = 8,
 		finish_dld = 9,
+		finish_int = 10,
 		idle = 5,
 		stop = 6;
 	reg [3:0] next_step = idle;
@@ -99,7 +102,6 @@ module control_unit(
 	t_dec = 4'b0101,
 	t_gin = 4'b0110, // Get interrupts.
 	//t_rri = 4'b0111, // Get interrupt handler return address. Maybe not necessary for now.
-	// Mask/Unmask devices?
 	//TODO: jmp to dec-mem?
 	
 	// 0 Op code instructions.
@@ -114,8 +116,9 @@ module control_unit(
 		io_write <= 0;
 		io_push <= 0;
 		io_store_retaddr = 0;
-		io_read_retaddr = 0;
-		io_ints <= 0;
+		io_push_retaddr = 0;
+		io_push_ints <= 0;
+		io_push_int_addr = 0;
 		pc_load <= 0;
 		pc_increment <= 0;
 		pc_push <= 0;
@@ -184,10 +187,24 @@ module control_unit(
 				next_step <= finish_ldm;
 			end
 			
+			finish_int: begin
+				mem_read <= 1;
+				pc_load <= 1;
+				next_step <= idle;
+			end
+			
 			fetch: begin
-				pc_increment <= 1;
-				instruction <= i_bus;
-				next_step <= decode;
+				if (io_interrupt && !flags[2]) begin
+					cmp_mask_int <= 1;
+					pc_push <= 1;
+					io_store_retaddr <= 1;
+					io_push_int_addr <= 1;
+					next_step <= finish_int;
+				end else begin
+					pc_increment <= 1;
+					instruction <= i_bus;
+					next_step <= decode;
+				end
 			end
 			
 			decode: begin
@@ -410,9 +427,9 @@ module control_unit(
 										next_step <= idle;
 									end
 									
-									t_gin begin:
+									t_gin: begin
 										reg3_addr <= instruction[3:0];
-										io_ints <= 1;
+										io_push_ints <= 1;
 										reg3_write <= 1;
 										next_step <= idle;
 									end
@@ -423,7 +440,7 @@ module control_unit(
 											more_ops: next_step <= idle;
 											
 											th_rit: begin
-												io_read_retaddr <= 1;
+												io_push_retaddr <= 1;
 												pc_load <= 1;
 												cmp_unmask_int <= 1;
 												next_step <= idle;

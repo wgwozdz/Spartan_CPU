@@ -10,8 +10,10 @@ module cpu(
 	output io_write,
 	output io_push,
 	output io_store_retaddr,
-	output io_read_retaddr,
-	output io_ints,
+	output io_push_retaddr,
+	output io_push_ints,
+	output io_push_int_addr,
+	input io_interrupt,
 	
 	// Buses
 	input [15:0] i_bus,
@@ -103,8 +105,10 @@ module cpu(
 		.io_addr_read(io_addr_read),
 		.io_addr(io_addr),
 		.io_store_retaddr(io_store_retaddr),
-		.io_read_retaddr(io_read_retaddr),
-		.io_ints(io_ints),
+		.io_push_retaddr(io_push_retaddr),
+		.io_push_ints(io_push_ints),
+		.io_push_int_addr(io_push_int_addr),
+		.io_interrupt(io_interrupt),
 		
 		.pc_increment(pc_increment),
 		.pc_load(pc_load),

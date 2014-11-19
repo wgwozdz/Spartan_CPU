@@ -7,7 +7,7 @@ module comparator(
 	
 	input [15:0] bus1,
 	input [15:0] bus2,
-	output reg [15:0] flags = 16'b0000000000000100;
+	output reg [15:0] flags = 16'b0000000000000100
 	);
 	
 	always @ (posedge clk) begin

@@ -5,7 +5,7 @@ module program_counter(
 	input push,
 	
 	inout [15:0] d_bus,
-	output reg [15:0] i_addr = 0
+	output reg [15:0] i_addr = 16
 	);
 
 	assign d_bus = push ? i_addr : 16'bz;

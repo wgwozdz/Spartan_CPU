@@ -1,10 +1,18 @@
 module computer(
 	input clk,
+	
+	// LED
 	output [7:0] led,
+	
+	// LCD
 	output lcd_rs,
 	output lcd_rw,
 	output lcd_e,
-	output [11:8] sf_d
+	output [11:8] sf_d,
+	
+	// KEYBOARD
+	inout ps2_clk,
+	inout ps2_data
 	);
 
 	wire mem_read;
@@ -47,7 +55,9 @@ module computer(
 		.lcd_rs(lcd_rs),
 		.lcd_rw(lcd_rw),
 		.lcd_e(lcd_e),
-		.lcd_d(sf_d)
+		.lcd_d(sf_d),
+		.ps2_clk(ps2_clk),
+		.ps2_data(ps2_data)
 	);
 
 	cpu cpu (

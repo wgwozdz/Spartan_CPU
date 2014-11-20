@@ -8,7 +8,7 @@ module io_bridge(
 	output interrupt,
 	input store_retaddr,
 	input push_retaddr,
-	input [15:0] d_addr,
+	inout [15:0] d_addr,
 	inout [15:0] d_bus,
 	
 	// Output pins
@@ -16,7 +16,9 @@ module io_bridge(
 	output lcd_rs,
 	output lcd_rw,
 	output lcd_e,
-	output [7:4] lcd_d
+	output [7:4] lcd_d,
+	inout ps2_clk,
+	inout ps2_data
 	);
 
 	reg [15:0] retaddr;
@@ -48,15 +50,15 @@ module io_bridge(
 		.lcd_d(lcd_d)
 	);
 	
-	wire tio_read, tio_write, tio_interrupt;
-	wire [15:0] tio_in, tio_out;
-	test_io tio (
+	wire key_read, key_write, key_interrupt;
+	wire [15:0] key_in, key_out;
+	keyboard_driver key (
 		.clk(clk),
-		.read(tio_read),
-		.write(tio_write),
-		.interrupt(tio_interrupt),
-		.in_bus(tio_in),
-		.out_bus(tio_out)
+		.read(key_read),
+		.write(key_write),
+		.interrupt(key_interrupt),
+		.in_bus(key_in),
+		.out_bus(key_out)
 	);
 	
 	wire [15:0] interrupts;
@@ -94,18 +96,18 @@ module io_bridge(
 	assign out_store = 
 	d_addr[ 0] ? led_out :
 	d_addr[ 1] ? lcd_out :
-	d_addr[ 2] ? tio_out :
+	d_addr[ 2] ? key_out :
 	16'bz0;
 
 	// Wire IOs to inputs
 	assign {led_read, led_write, led_in} = d_addr[ 0] ? {read, write, d_bus} : 0;
 	assign {lcd_read, lcd_write, lcd_in} = d_addr[ 1] ? {read, write, d_bus} : 0;
-	assign {tio_read, tio_write, tio_in} = d_addr[ 2] ? {read, write, d_bus} : 0;
+	assign {key_read, key_write, key_in} = d_addr[ 2] ? {read, write, d_bus} : 0;
 
 	// Wire interrupts
 	assign interrupts[ 0] = 0;
 	assign interrupts[ 1] = 0;
-	assign interrupts[ 2] = tio_interrupt;
+	assign interrupts[ 2] = key_interrupt;
 	assign interrupts[ 3] = 0;
 	assign interrupts[ 4] = 0;
 	assign interrupts[ 5] = 0;
@@ -124,30 +126,6 @@ module io_bridge(
 		if (store_retaddr) begin
 			retaddr <= d_bus;
 		end
-		/*if (mask) begin
-			masks <= masks | d_bus;
-		end else if (unmask) begin
-			masks <= masks & ~d_bus;
-		end*/
-	end
-endmodule
 
-module test_io (
-	input clk,
-	input read,
-	input write,
-	output reg interrupt = 1,
-	input [15:0] in_bus,
-	output reg [15:0] out_bus = 0
-	);
-	
-	always @ (posedge clk) begin
-		if (read) begin
-			out_bus <= 37;
-		end
-		if (write) begin
-			interrupt <= 0;
-		end
 	end
-	
 endmodule

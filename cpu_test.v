@@ -29,8 +29,9 @@ module test_memory(
 		mem[21] = 16'b1111001111110001; // jmp r1
 		mem[22] = 16'b0000000000000000; // nothing
 		mem[23] = 16'b1111111101100011; // Read interrupts.
-		mem[24] = 16'b1111100100100000; // IOO 2, r0
-		mem[25] = 16'b1111111111110001; // ret interrupt.
+		mem[24] = 16'b1111100000100000; // IOI 2, r0
+		mem[25] = 16'b1111100100000000; // IOO 0, r0
+		mem[26] = 16'b1111111111110001; // ret interrupt.
 		
 	end
 	
@@ -66,6 +67,8 @@ module cpu_test;
 	wire [15:0] i_bus;
 	wire lcd_rs, lcd_rw, lcd_e;
 	wire [3:0] sf_d;
+	wire ps2_clk;
+	wire ps2_data;
 
 	// Bidirs
 	wire [15:0] d_bus;
@@ -96,7 +99,9 @@ module cpu_test;
 		.lcd_rs(lcd_rs),
 		.lcd_rw(lcd_rw),
 		.lcd_e(lcd_e),
-		.lcd_d(sf_d)
+		.lcd_d(sf_d),
+		.ps2_clk(ps2_clk),
+		.ps2_data(ps2_data)
 	);
 
 	// Instantiate the Unit Under Test (UUT)

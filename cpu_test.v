@@ -19,14 +19,18 @@ module test_memory(
 	assign d_bus = read ? d_mem : 16'bz;
 
 	initial begin
-		mem[ 0] = 16'b1111111100010000; // Ldl r0
-		mem[ 1] = 16'b0000000000000000; // Literal
-		mem[ 2] = 16'b1111111100010001; // Ldl r1
-		mem[ 3] = 16'b0000000000001000; // Literal
-		mem[ 4] = 16'b1111101000010000; // Sti r1, r0
-		mem[ 5] = 16'b1111101000010000; // Sti r1, r0
-		mem[ 6] = 16'b1111101100010010; // Dld r1, r2
-		mem[ 7] = 16'b1111101100010011; // Dld r1, r3
+		mem[ 2] = 16'b0000000000010111;
+	
+		mem[16] = 16'b1111111100010000; // Ldl r0
+		mem[17] = 16'b0000000000000000; // Literal
+		mem[18] = 16'b1111111100010001; // Ldl r1
+		mem[19] = 16'b0000000000010101; // Literal
+		mem[20] = 16'b1111111100110000; // Setf r0
+		mem[21] = 16'b1111001111110001; // jmp r1
+		mem[22] = 16'b0000000000000000; // nothing
+		mem[23] = 16'b1111111101100011; // Read interrupts.
+		mem[24] = 16'b1111100100100000; // IOO 2, r0
+		mem[25] = 16'b1111111111110001; // ret interrupt.
 		
 	end
 	
@@ -53,6 +57,10 @@ module cpu_test;
 	wire io_read;
 	wire io_write;
 	wire io_push;
+	wire io_store_retaddr;
+	wire io_push_retaddr;
+	wire io_push_ints;
+	wire io_interrupt;
 	wire [15:0] d_addr;
 	wire [15:0] i_addr;
 	wire [15:0] i_bus;
@@ -77,6 +85,11 @@ module cpu_test;
 		.read(io_read),
 		.write(io_write),
 		.push(io_push),
+		.push_ints(io_push_ints),
+		.store_retaddr(io_store_retaddr),
+		.push_retaddr(io_push_retaddr),
+		.push_int_addr(io_push_int_addr),
+		.interrupt(io_interrupt),
 		.d_addr(d_addr),
 		.d_bus(d_bus),
 		.led(led),
@@ -89,15 +102,20 @@ module cpu_test;
 	// Instantiate the Unit Under Test (UUT)
 	cpu uut (
 		.clk(clk), 
-		.mem_read(mem_read), 
-		.mem_write(mem_write), 
+		.mem_read(mem_read),
+		.mem_write(mem_write),
 		.io_read(io_read),
 		.io_write(io_write),
 		.io_push(io_push),
 		.i_bus(i_bus), 
 		.d_bus(d_bus), 
 		.d_addr(d_addr), 
-		.i_addr(i_addr)
+		.i_addr(i_addr),
+		.io_store_retaddr(io_store_retaddr),
+		.io_push_retaddr(io_push_retaddr),
+		.io_push_ints(io_push_ints),
+		.io_push_int_addr(io_push_int_addr),
+		.io_interrupt(io_interrupt)
 	);
 
 	always

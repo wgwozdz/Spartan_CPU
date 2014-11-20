@@ -79,7 +79,7 @@ module io_bridge(
 		interrupts[13] ? 16'd13 :
 		interrupts[14] ? 16'd14 :
 		interrupts[15] ? 16'd15 :
-		0;
+		16'd0;
 	assign d_bus = 
 		push ? out_store : 
 		push_retaddr ? retaddr :
@@ -92,20 +92,33 @@ module io_bridge(
 
 	// Wire output to IOs
 	assign out_store = 
-	d_addr[0] ? led_out :
-	d_addr[1] ? lcd_out :
-	d_addr[2] ? tio_out :
+	d_addr[ 0] ? led_out :
+	d_addr[ 1] ? lcd_out :
+	d_addr[ 2] ? tio_out :
 	16'bz0;
 
 	// Wire IOs to inputs
-	assign {led_read, led_write, led_in} = d_addr[0] ? {read, write, d_bus} : 0;
-	assign {lcd_read, lcd_write, lcd_in} = d_addr[1] ? {read, write, d_bus} : 0;
-	assign {tio_read, tio_write, tio_in} = d_addr[2] ? {read, write, d_bus} : 0;
+	assign {led_read, led_write, led_in} = d_addr[ 0] ? {read, write, d_bus} : 0;
+	assign {lcd_read, lcd_write, lcd_in} = d_addr[ 1] ? {read, write, d_bus} : 0;
+	assign {tio_read, tio_write, tio_in} = d_addr[ 2] ? {read, write, d_bus} : 0;
 
 	// Wire interrupts
-	assign interrupts[0] = 0;
-	assign interrupts[1] = 0;
-	assign interrupts[2] = tio_interrupt;
+	assign interrupts[ 0] = 0;
+	assign interrupts[ 1] = 0;
+	assign interrupts[ 2] = tio_interrupt;
+	assign interrupts[ 3] = 0;
+	assign interrupts[ 4] = 0;
+	assign interrupts[ 5] = 0;
+	assign interrupts[ 6] = 0;
+	assign interrupts[ 7] = 0;
+	assign interrupts[ 8] = 0;
+	assign interrupts[ 9] = 0;
+	assign interrupts[10] = 0;
+	assign interrupts[11] = 0;
+	assign interrupts[12] = 0;
+	assign interrupts[13] = 0;
+	assign interrupts[14] = 0;
+	assign interrupts[15] = 0;
 
 	always @ (posedge clk) begin
 		if (store_retaddr) begin

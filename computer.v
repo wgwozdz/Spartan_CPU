@@ -15,6 +15,7 @@ module computer(
 	wire io_store_retaddr;
 	wire io_read_retaddr;
 	wire io_ints;
+	wire io_interrupt;
 	wire [15:0] d_addr;
 	wire [15:0] i_addr;
 	wire [15:0] i_bus;
@@ -35,7 +36,11 @@ module computer(
 		.read(io_read),
 		.write(io_write),
 		.push(io_push),
-		.ints(io_ints),
+		.push_ints(io_push_ints),
+		.store_retaddr(io_store_retaddr),
+		.push_retaddr(io_push_retaddr),
+		.push_int_addr(io_push_int_addr),
+		.interrupt(io_interrupt),
 		.d_addr(d_addr),
 		.d_bus(d_bus),
 		.led(led),
@@ -55,7 +60,12 @@ module computer(
 		.i_bus(i_bus), 
 		.d_bus(d_bus), 
 		.d_addr(d_addr), 
-		.i_addr(i_addr)
+		.i_addr(i_addr),
+		.io_store_retaddr(io_store_retaddr),
+		.io_push_retaddr(io_push_retaddr),
+		.io_push_ints(io_push_ints),
+		.io_push_int_addr(io_push_int_addr),
+		.io_interrupt(io_interrupt)
 	);
 
 endmodule

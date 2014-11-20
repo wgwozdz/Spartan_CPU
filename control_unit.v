@@ -105,7 +105,7 @@ module control_unit(
 	//TODO: jmp to dec-mem?
 	
 	// 0 Op code instructions.
-	th_rit = 4'b0111, // Return to interrupted address, enable ints
+	th_rit = 4'b0001, // Return to interrupted address, enable ints
 	th_nop = 4'b1111;
 	
 	always @ (posedge clk) begin
@@ -190,7 +190,7 @@ module control_unit(
 			finish_int: begin
 				mem_read <= 1;
 				pc_load <= 1;
-				next_step <= idle;
+				next_step <= finish_jmp;
 			end
 			
 			fetch: begin
@@ -443,7 +443,7 @@ module control_unit(
 												io_push_retaddr <= 1;
 												pc_load <= 1;
 												cmp_unmask_int <= 1;
-												next_step <= idle;
+												next_step <= finish_jmp;
 											end
 											
 											default: next_step <= stop;

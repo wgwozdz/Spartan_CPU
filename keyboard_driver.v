@@ -4,7 +4,10 @@ module keyboard_driver(
 	input write,
 	output interrupt,
 	input [15:0] in_bus,
-	output reg [15:0] out_bus
+	output reg [15:0] out_bus,
+	
+	inout ps2_clk,
+	inout ps2_data
 	);
 	
 	wire [7:0] char_in;

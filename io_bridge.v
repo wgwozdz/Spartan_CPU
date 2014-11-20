@@ -58,7 +58,10 @@ module io_bridge(
 		.write(key_write),
 		.interrupt(key_interrupt),
 		.in_bus(key_in),
-		.out_bus(key_out)
+		.out_bus(key_out),
+		
+		.ps2_clk(ps2_clk),
+		.ps2_data(ps2_data)
 	);
 	
 	wire [15:0] interrupts;

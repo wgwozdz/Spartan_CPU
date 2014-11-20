@@ -21,8 +21,8 @@ module computer(
 	wire io_write;
 	wire io_push;
 	wire io_store_retaddr;
-	wire io_read_retaddr;
-	wire io_ints;
+	wire io_push_retaddr;
+	wire io_push_ints;
 	wire io_interrupt;
 	wire [15:0] d_addr;
 	wire [15:0] i_addr;

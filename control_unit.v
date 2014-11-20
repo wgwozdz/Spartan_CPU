@@ -58,6 +58,10 @@ module control_unit(
 		finish_sti = 8,
 		finish_dld = 9,
 		finish_int = 10,
+		finish_cal = 11,
+		finish_cal2 = 13,
+		finish_ret = 14,
+		finish_ret2 = 15,
 		idle = 5,
 		stop = 6;
 	reg [3:0] next_step = idle;
@@ -93,6 +97,7 @@ module control_unit(
 	o_ioo = 4'b1001,
 	o_sti = 4'b1010, // Store and increment
 	o_dld = 4'b1011, // Decrement and load
+	o_cal = 4'b1100, // Push current PC in stack and jmp to addr.
 	
 	// 1 Op code instructions.
 	t_ldl = 4'b0001,
@@ -102,7 +107,7 @@ module control_unit(
 	t_dec = 4'b0101,
 	t_gin = 4'b0110, // Get interrupts.
 	//t_rri = 4'b0111, // Get interrupt handler return address. Maybe not necessary for now.
-	//TODO: jmp to dec-mem?
+	t_ret = 4'b1000, // Pop stack into PC.
 	
 	// 0 Op code instructions.
 	th_rit = 4'b0001, // Return to interrupted address, enable ints
@@ -188,6 +193,32 @@ module control_unit(
 			end
 			
 			finish_int: begin
+				mem_read <= 1;
+				pc_load <= 1;
+				next_step <= finish_jmp;
+			end
+			
+			finish_cal: begin
+				reg1_read <= 1;
+				lu_inc <= 1;
+				reg3_write <= 1;
+				next_step <= finish_cal2;
+			end
+			
+			finish_cal2: begin
+				reg1_addr <= instruction[3:0];
+				reg1_read <= 1;
+				lu_passthrough <= 1;
+				pc_load <= 1;
+				next_step <= finish_jmp;
+			end
+			
+			finish_ret: begin
+				reg2_read <= 1;
+				next_step <= finish_ret2;
+			end
+			
+			finish_ret2: begin
 				mem_read <= 1;
 				pc_load <= 1;
 				next_step <= finish_jmp;
@@ -386,6 +417,16 @@ module control_unit(
 								next_step <= finish_dld;
 							end
 							
+							o_cal: begin
+								reg1_addr <= instruction[7:4];
+								reg2_addr <= instruction[7:4];
+								reg3_addr <= instruction[7:4];
+								reg2_read <= 1;
+								pc_push <= 1;
+								mem_write <= 1;
+								next_step <= finish_cal;
+							end
+							
 							more_ops: begin
 								case (instruction[7:4])
 									// 1 op instructions here.
@@ -432,6 +473,16 @@ module control_unit(
 										io_push_ints <= 1;
 										reg3_write <= 1;
 										next_step <= idle;
+									end
+									
+									t_ret: begin
+										reg1_addr <= instruction[3:0];
+										reg2_addr <= instruction[3:0];
+										reg3_addr <= instruction[3:0];
+										reg1_read <= 1;
+										lu_dec <= 1;
+										reg3_write <= 1;
+										next_step <= finish_ret;
 									end
 									
 									more_ops: begin

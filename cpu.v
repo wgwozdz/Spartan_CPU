@@ -26,7 +26,8 @@ module cpu(
 
 	wire pc_increment, pc_load, pc_push;
 	wire cmp_load, cmp_compare, cmp_mask_int, cmp_unmask_int;
-	wire lu_passthrough, lu_add, lu_sub, lu_inc, lu_dec, lu_shr, lu_shl, lu_band, lu_bor, lu_bxor, lu_bnegate;
+	wire lu_passthrough, lu_push, lu_push_high, lu_add, lu_sub, lu_mul, lu_inc, lu_dec,
+		  lu_shr, lu_shl, lu_band, lu_bor, lu_bxor, lu_bnegate;
 	wire reg1_read, reg2_read, reg3_write;
 	wire [3:0] reg1_addr, reg2_addr, reg3_addr;
 	wire io_addr_read;
@@ -71,8 +72,11 @@ module cpu(
 	
 	logic_unit logic_unit (
 		.passthrough(lu_passthrough),
+		.push(lu_push),
+		.push_high(lu_push_high),
 		.add(lu_add),
 		.sub(lu_sub),
+		.mul(lu_mul),
 		.inc(lu_inc),
 		.dec(lu_dec),
 		.shr(lu_shr),
@@ -120,9 +124,12 @@ module cpu(
 		.cmp_unmask_int(cmp_unmask_int),
 		
 		.lu_passthrough(lu_passthrough),
+		.lu_push(lu_push),
+		.lu_push_high(lu_push_high),
 		.lu_add(lu_add),
 		.lu_sub(lu_sub),
 		.lu_inc(lu_inc),
+		.lu_mul(lu_mul),
 		.lu_dec(lu_dec),
 		.lu_shr(lu_shr),
 		.lu_shl(lu_shl),

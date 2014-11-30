@@ -25,8 +25,11 @@ module control_unit(
 	output reg cmp_unmask_int = 0,
 	
 	output reg lu_passthrough = 0,
+	output reg lu_push = 0,
+	output reg lu_push_high = 0,
 	output reg lu_add = 0,
 	output reg lu_sub = 0,
+	output reg lu_mul = 0,
 	output reg lu_inc = 0,
 	output reg lu_dec = 0,
 	output reg lu_shr = 0,
@@ -132,8 +135,11 @@ module control_unit(
 		cmp_mask_int <= 0;
 		cmp_unmask_int <= 0;
 		lu_passthrough <= 0;
+		lu_push <= 0;
+		lu_push_high <= 0;
 		lu_add <= 0;
 		lu_sub <= 0;
+		lu_mul <= 0;
 		lu_inc <= 0;
 		lu_dec <= 0;
 		lu_shr <= 0;

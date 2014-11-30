@@ -234,280 +234,285 @@ module control_unit(
 				end else begin
 					pc_increment <= 1;
 					instruction <= i_bus;
-					case (instruction[15:12])
-						// 3 op instructions here.
-						z_add: begin
-							reg1_addr <= instruction[11:8];
-							reg2_addr <= instruction[7:4];
-							reg3_addr <= instruction[3:0];
-							reg1_read <= 1;
-							reg2_read <= 1;
-							reg3_write <= 1;
-							lu_add <= 1;
-							next_step <= idle;
-						end
-						
-						z_sub: begin
-							reg1_addr <= instruction[11:8];
-							reg2_addr <= instruction[7:4];
-							reg3_addr <= instruction[3:0];
-							reg1_read <= 1;
-							reg2_read <= 1;
-							reg3_write <= 1;
-							lu_sub <= 1;
-							next_step <= idle;
-						end
-						
-						z_and: begin
-							reg1_addr <= instruction[11:8];
-							reg2_addr <= instruction[7:4];
-							reg3_addr <= instruction[3:0];
-							reg1_read <= 1;
-							reg2_read <= 1;
-							reg3_write <= 1;
-							lu_band <= 1;
-							next_step <= idle;
-						end
-						
-						z_or: begin
-							reg1_addr <= instruction[11:8];
-							reg2_addr <= instruction[7:4];
-							reg3_addr <= instruction[3:0];
-							reg1_read <= 1;
-							reg2_read <= 1;
-							reg3_write <= 1;
-							lu_bor <= 1;
-							next_step <= idle;
-						end
-						
-						z_xor: begin
-							reg1_addr <= instruction[11:8];
-							reg2_addr <= instruction[7:4];
-							reg3_addr <= instruction[3:0];
-							reg1_read <= 1;
-							reg2_read <= 1;
-							reg3_write <= 1;
-							lu_bxor <= 1;
-							next_step <= idle;
-						end
-						
-						z_shr: begin
-							reg1_addr <= instruction[11:8];
-							reg2_addr <= instruction[7:4];
-							reg3_addr <= instruction[3:0];
-							reg1_read <= 1;
-							reg2_read <= 1;
-							reg3_write <= 1;
-							lu_shr <= 1;
-							next_step <= idle;
-						end
-						
-						z_shl: begin
-							reg1_addr <= instruction[11:8];
-							reg2_addr <= instruction[7:4];
-							reg3_addr <= instruction[3:0];
-							reg1_read <= 1;
-							reg2_read <= 1;
-							reg3_write <= 1;
-							lu_shl <= 1;
-							next_step <= idle;
-						end
-						
-						more_ops: begin
-							case (instruction[11:8])
-								// 2 op instructions here.
-								o_mov: begin
-									reg1_addr <= instruction[7:4];
-									reg3_addr <= instruction[3:0];
-									reg1_read <= 1;
-									lu_passthrough <= 1;
-									reg3_write <= 1;
-									next_step <= idle;
+					next_step <= decode;
+				end
+			end
+			
+			decode: begin
+				case (instruction[15:12])
+					// 3 op instructions here.
+					z_add: begin
+						reg1_addr <= instruction[11:8];
+						reg2_addr <= instruction[7:4];
+						reg3_addr <= instruction[3:0];
+						reg1_read <= 1;
+						reg2_read <= 1;
+						reg3_write <= 1;
+						lu_add <= 1;
+						next_step <= idle;
+					end
+					
+					z_sub: begin
+						reg1_addr <= instruction[11:8];
+						reg2_addr <= instruction[7:4];
+						reg3_addr <= instruction[3:0];
+						reg1_read <= 1;
+						reg2_read <= 1;
+						reg3_write <= 1;
+						lu_sub <= 1;
+						next_step <= idle;
+					end
+					
+					z_and: begin
+						reg1_addr <= instruction[11:8];
+						reg2_addr <= instruction[7:4];
+						reg3_addr <= instruction[3:0];
+						reg1_read <= 1;
+						reg2_read <= 1;
+						reg3_write <= 1;
+						lu_band <= 1;
+						next_step <= idle;
+					end
+					
+					z_or: begin
+						reg1_addr <= instruction[11:8];
+						reg2_addr <= instruction[7:4];
+						reg3_addr <= instruction[3:0];
+						reg1_read <= 1;
+						reg2_read <= 1;
+						reg3_write <= 1;
+						lu_bor <= 1;
+						next_step <= idle;
+					end
+					
+					z_xor: begin
+						reg1_addr <= instruction[11:8];
+						reg2_addr <= instruction[7:4];
+						reg3_addr <= instruction[3:0];
+						reg1_read <= 1;
+						reg2_read <= 1;
+						reg3_write <= 1;
+						lu_bxor <= 1;
+						next_step <= idle;
+					end
+					
+					z_shr: begin
+						reg1_addr <= instruction[11:8];
+						reg2_addr <= instruction[7:4];
+						reg3_addr <= instruction[3:0];
+						reg1_read <= 1;
+						reg2_read <= 1;
+						reg3_write <= 1;
+						lu_shr <= 1;
+						next_step <= idle;
+					end
+					
+					z_shl: begin
+						reg1_addr <= instruction[11:8];
+						reg2_addr <= instruction[7:4];
+						reg3_addr <= instruction[3:0];
+						reg1_read <= 1;
+						reg2_read <= 1;
+						reg3_write <= 1;
+						lu_shl <= 1;
+						next_step <= idle;
+					end
+					
+					more_ops: begin
+						case (instruction[11:8])
+							// 2 op instructions here.
+							o_mov: begin
+								reg1_addr <= instruction[7:4];
+								reg3_addr <= instruction[3:0];
+								reg1_read <= 1;
+								lu_passthrough <= 1;
+								reg3_write <= 1;
+								next_step <= idle;
+							end
+							
+							o_cmp: begin
+								reg1_addr <= instruction[7:4];
+								reg2_addr <= instruction[3:0];
+								reg1_read <= 1;
+								reg2_read <= 1;
+								cmp_compare <= 1;
+								next_step <= idle;
+							end
+							
+							o_jmp: begin
+								reg1_addr <= instruction[3:0];
+								reg1_read <= 1;
+								lu_passthrough <= 1;
+								if ((instruction[4] &&  flags[0]) || // Equals
+									 (instruction[5] && ~flags[1]) || // Less than
+									 (instruction[6] &&  flags[1]))   // Greater than
+								begin
+									pc_load <= 1;	
 								end
-								
-								o_cmp: begin
-									reg1_addr <= instruction[7:4];
-									reg2_addr <= instruction[3:0];
-									reg1_read <= 1;
-									reg2_read <= 1;
-									cmp_compare <= 1;
-									next_step <= idle;
-								end
-								
-								o_jmp: begin
-									reg1_addr <= instruction[3:0];
-									reg1_read <= 1;
-									lu_passthrough <= 1;
-									if ((instruction[4] &&  flags[0]) || // Equals
-										 (instruction[5] && ~flags[1]) || // Less than
-										 (instruction[6] &&  flags[1]))   // Greater than
-									begin
-										pc_load <= 1;	
+								next_step <= finish_jmp;
+							end
+							
+							o_ldm: begin
+								reg2_addr <= instruction[7:4];
+								reg3_addr <= instruction[3:0];
+								reg2_read <= 1;
+								next_step <= finish_ldm;
+							end
+							
+							o_stm: begin
+								reg1_addr <= instruction[3:0];
+								reg2_addr <= instruction[7:4];
+								reg1_read <= 1;
+								reg2_read <= 1;
+								lu_passthrough <= 1;
+								mem_write <= 1;
+								next_step <= idle;
+							end
+							
+							o_neg: begin
+								reg1_addr <= instruction[7:4];
+								reg3_addr <= instruction[3:0];
+								reg1_read <= 1;
+								lu_bnegate <= 1;
+								reg3_write <= 1;
+								next_step <= idle;
+							end
+							
+							o_ioi: begin
+								io_addr <= instruction[7:4];
+								reg3_addr <= instruction[3:0];
+								io_addr_read <= 1;
+								io_read <= 1;
+								next_step <= finish_ioi;
+							end
+							
+							o_ioo: begin
+								io_addr <= instruction[7:4];
+								reg1_addr <= instruction[3:0];
+								io_addr_read <= 1;
+								reg1_read <= 1;
+								lu_passthrough <= 1;
+								io_write <= 1;
+								next_step <= idle;
+							end
+							
+							o_sti: begin
+								reg1_addr <= instruction[3:0];
+								reg2_addr <= instruction[7:4];
+								reg3_addr <= instruction[7:4];
+								reg1_read <= 1;
+								reg2_read <= 1;
+								lu_passthrough <= 1;
+								mem_write <= 1;
+								next_step <= finish_sti;
+							end
+							
+							o_dld: begin
+								reg1_addr <= instruction[7:4];
+								reg2_addr <= instruction[7:4];
+								reg3_addr <= instruction[7:4];
+								reg1_read <= 1;
+								lu_dec <= 1;
+								reg3_write <= 1;
+								next_step <= finish_dld;
+							end
+							
+							o_cal: begin
+								reg1_addr <= instruction[7:4];
+								reg2_addr <= instruction[7:4];
+								reg3_addr <= instruction[7:4];
+								reg2_read <= 1;
+								pc_push <= 1;
+								mem_write <= 1;
+								next_step <= finish_cal;
+							end
+							
+							more_ops: begin
+								case (instruction[7:4])
+									// 1 op instructions here.
+									t_ldl: begin
+										pc_increment <= 1;
+										reg3_addr <= instruction[3:0];
+										next_step <= finish_ldl;
 									end
-									next_step <= finish_jmp;
-								end
-								
-								o_ldm: begin
-									reg2_addr <= instruction[7:4];
-									reg3_addr <= instruction[3:0];
-									reg2_read <= 1;
-									next_step <= finish_ldm;
-								end
-								
-								o_stm: begin
-									reg1_addr <= instruction[3:0];
-									reg2_addr <= instruction[7:4];
-									reg1_read <= 1;
-									reg2_read <= 1;
-									lu_passthrough <= 1;
-									mem_write <= 1;
-									next_step <= idle;
-								end
-								
-								o_neg: begin
-									reg1_addr <= instruction[7:4];
-									reg3_addr <= instruction[3:0];
-									reg1_read <= 1;
-									lu_bnegate <= 1;
-									reg3_write <= 1;
-									next_step <= idle;
-								end
-								
-								o_ioi: begin
-									io_addr <= instruction[7:4];
-									reg3_addr <= instruction[3:0];
-									io_addr_read <= 1;
-									io_read <= 1;
-									next_step <= finish_ioi;
-								end
-								
-								o_ioo: begin
-									io_addr <= instruction[7:4];
-									reg1_addr <= instruction[3:0];
-									io_addr_read <= 1;
-									reg1_read <= 1;
-									lu_passthrough <= 1;
-									io_write <= 1;
-									next_step <= idle;
-								end
-								
-								o_sti: begin
-									reg1_addr <= instruction[3:0];
-									reg2_addr <= instruction[7:4];
-									reg3_addr <= instruction[7:4];
-									reg1_read <= 1;
-									reg2_read <= 1;
-									lu_passthrough <= 1;
-									mem_write <= 1;
-									next_step <= finish_sti;
-								end
-								
-								o_dld: begin
-									reg1_addr <= instruction[7:4];
-									reg2_addr <= instruction[7:4];
-									reg3_addr <= instruction[7:4];
-									reg1_read <= 1;
-									lu_dec <= 1;
-									reg3_write <= 1;
-									next_step <= finish_dld;
-								end
-								
-								o_cal: begin
-									reg1_addr <= instruction[7:4];
-									reg2_addr <= instruction[7:4];
-									reg3_addr <= instruction[7:4];
-									reg2_read <= 1;
-									pc_push <= 1;
-									mem_write <= 1;
-									next_step <= finish_cal;
-								end
-								
-								more_ops: begin
-									case (instruction[7:4])
-										// 1 op instructions here.
-										t_ldl: begin
-											pc_increment <= 1;
-											reg3_addr <= instruction[3:0];
-											next_step <= finish_ldl;
-										end
-										
-										t_gtf: begin
-											reg3_addr <= instruction[3:0];
-											flags_pass <= 1;
-											reg3_write <= 1;
-											next_step <= idle;
-										end
-										
-										t_stf: begin
-											reg1_addr <= instruction[3:0];
-											reg1_read <= 1;
-											cmp_load <= 1;
-											next_step <= idle;
-										end
-										
-										t_inc: begin
-											reg1_addr <= instruction[3:0];
-											reg3_addr <= instruction[3:0];
-											reg1_read <= 1;
-											lu_inc <= 1;
-											reg3_write <= 1;
-											next_step <= idle;
-										end
-										
-										t_dec: begin
-											reg1_addr <= instruction[3:0];
-											reg3_addr <= instruction[3:0];
-											reg1_read <= 1;
-											lu_dec <= 1;
-											reg3_write <= 1;
-											next_step <= idle;
-										end
-										
-										t_gin: begin
-											reg3_addr <= instruction[3:0];
-											io_push_ints <= 1;
-											reg3_write <= 1;
-											next_step <= idle;
-										end
-										
-										t_ret: begin
-											reg1_addr <= instruction[3:0];
-											reg2_addr <= instruction[3:0];
-											reg3_addr <= instruction[3:0];
-											reg1_read <= 1;
-											lu_dec <= 1;
-											reg3_write <= 1;
-											next_step <= finish_ret;
-										end
-										
-										more_ops: begin
-											case (instruction[3:0])
-												// 0 op instructions here.
-												more_ops: next_step <= idle;
-												
-												th_rit: begin
-													io_push_retaddr <= 1;
-													pc_load <= 1;
-													cmp_unmask_int <= 1;
-													next_step <= finish_jmp;
-												end
-												
-												default: next_step <= stop;
-											endcase
-										end
-										
-										default: next_step <= stop;
-									endcase
-								end
-								
-								default: next_step <= stop;
-							endcase
-						end
-						
-						default: next_step <= stop;
-					endcase
-				end
-				end
+									
+									t_gtf: begin
+										reg3_addr <= instruction[3:0];
+										flags_pass <= 1;
+										reg3_write <= 1;
+										next_step <= idle;
+									end
+									
+									t_stf: begin
+										reg1_addr <= instruction[3:0];
+										reg1_read <= 1;
+										cmp_load <= 1;
+										next_step <= idle;
+									end
+									
+									t_inc: begin
+										reg1_addr <= instruction[3:0];
+										reg3_addr <= instruction[3:0];
+										reg1_read <= 1;
+										lu_inc <= 1;
+										reg3_write <= 1;
+										next_step <= idle;
+									end
+									
+									t_dec: begin
+										reg1_addr <= instruction[3:0];
+										reg3_addr <= instruction[3:0];
+										reg1_read <= 1;
+										lu_dec <= 1;
+										reg3_write <= 1;
+										next_step <= idle;
+									end
+									
+									t_gin: begin
+										reg3_addr <= instruction[3:0];
+										io_push_ints <= 1;
+										reg3_write <= 1;
+										next_step <= idle;
+									end
+									
+									t_ret: begin
+										reg1_addr <= instruction[3:0];
+										reg2_addr <= instruction[3:0];
+										reg3_addr <= instruction[3:0];
+										reg1_read <= 1;
+										lu_dec <= 1;
+										reg3_write <= 1;
+										next_step <= finish_ret;
+									end
+									
+									more_ops: begin
+										case (instruction[3:0])
+											// 0 op instructions here.
+											more_ops: next_step <= idle;
+											
+											th_rit: begin
+												io_push_retaddr <= 1;
+												pc_load <= 1;
+												cmp_unmask_int <= 1;
+												next_step <= finish_jmp;
+											end
+											
+											default: next_step <= stop;
+										endcase
+									end
+									
+									default: next_step <= stop;
+								endcase
+							end
+							
+							default: next_step <= stop;
+						endcase
+					end
+					
+					default: next_step <= stop;
+				endcase
+			end
+			
 			default: next_step <= stop;
 		endcase
 	end

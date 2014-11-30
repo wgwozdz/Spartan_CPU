@@ -1,6 +1,7 @@
 module logic_unit(
 	input clk,
-	input passthrough,
+	input pass,
+	input pass_high,
 	input push,
 	input push_high,
 	input add,
@@ -25,11 +26,12 @@ module logic_unit(
 	reg [31:0] store;
 	
 	assign bus3 = 
-	passthrough ? bus1 : 
+	pass ? bus1 : 
 	push ? store[15:0] :
 	16'bz;
 	
 	assign bus4 = 
+	pass_high ? bus2 : 
 	push_high ? store[31:16] :
 	16'bz;
 

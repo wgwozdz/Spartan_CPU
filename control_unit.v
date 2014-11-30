@@ -24,7 +24,8 @@ module control_unit(
 	output reg cmp_mask_int = 0,
 	output reg cmp_unmask_int = 0,
 	
-	output reg lu_passthrough = 0,
+	output reg lu_pass = 0,
+	output reg lu_pass_high = 0,
 	output reg lu_push = 0,
 	output reg lu_push_high = 0,
 	output reg lu_add = 0,
@@ -39,12 +40,12 @@ module control_unit(
 	output reg lu_bxor = 0,
 	output reg lu_bnegate = 0,
 	
-	output reg reg1_read = 0,
-	output reg reg2_read = 0,
 	output reg reg3_write = 0,
+	output reg reg4_write = 0,
 	output reg [3:0] reg1_addr = 0,
 	output reg [3:0] reg2_addr = 0,
 	output reg [3:0] reg3_addr = 0,
+	output reg [3:0] reg4_addr = 0,
 	
 	input [15:0] i_bus,
 	input [15:0] flags,
@@ -134,7 +135,8 @@ module control_unit(
 		cmp_compare <= 0;
 		cmp_mask_int <= 0;
 		cmp_unmask_int <= 0;
-		lu_passthrough <= 0;
+		lu_pass <= 0;
+		lu_pass_high <= 0;
 		lu_push <= 0;
 		lu_push_high <= 0;
 		lu_add <= 0;
@@ -148,9 +150,8 @@ module control_unit(
 		lu_bor <= 0;
 		lu_bxor <= 0;
 		lu_bnegate <= 0;
-		reg1_read <= 0;
-		reg2_read <= 0;
 		reg3_write <= 0;
+		reg4_write <= 0;
 		i_bus_pass <= 0;
 		flags_pass <= 0;
 

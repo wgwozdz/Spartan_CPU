@@ -13,11 +13,11 @@ module cpu(
 	output io_push_retaddr,
 	output io_push_ints,
 	output io_push_int_addr,
-	input io_interrupt,
+	input  io_interrupt,
 	
 	// Buses
-	input [15:0] i_bus,
-	inout [15:0] d_bus,
+	input  [15:0] i_bus,
+	inout  [15:0] d_bus,
 	output [15:0] d_addr,
 	output [15:0] i_addr
 	);

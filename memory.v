@@ -2,19 +2,25 @@ module memory(
 	input clk,
 
 	// Control
-	input read,
-	input write,
+	input d_read,
+	input d_write,
+	input d_push,
+	input i_read,
+	input i_push,
 
 	// Buses
 	input      [15:0] d_addr,
 	input      [15:0] i_addr,
 	inout      [15:0] d_bus,
-	output reg [15:0] i_bus
+	output     [15:0] i_bus
 	);
 
 	reg [15:0] mem [255:0];
-	reg [15:0] d_mem;
-	assign d_bus = read ? d_mem : 16'bz;
+	reg [15:0] i_store;
+	reg [15:0] d_store;
+	assign i_bus = i_push ? i_store : 16'bz;
+	assign d_bus = d_push ? d_store : 16'bz;
+	
 
 	integer i;
 	initial begin
@@ -39,10 +45,11 @@ module memory(
 	end
 	
 	always @ (posedge clk) begin
-		i_bus <= mem[i_addr];
-		d_mem <= mem[d_addr];
-		
-		if (write) begin
+		if (i_read) begin
+			i_store <= mem[i_addr];
+		end else if (d_read) begin
+			d_store <= mem[d_addr];
+		end else if (d_write) begin
 			mem[d_addr] <= d_bus;
 		end
 	end

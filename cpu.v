@@ -2,8 +2,11 @@ module cpu(
 	input clk,
 	
 	// Memory interface
-	output mem_read,
-	output mem_write,
+	output i_read,
+	output i_push,
+	output d_read,
+	output d_push,
+	output d_write,
 	
 	// IO interface
 	output io_read,
@@ -103,8 +106,11 @@ module cpu(
 	control_unit control_unit (
 		.clk(clk),
 		
-		.mem_read(mem_read),
-		.mem_write(mem_write),
+		.i_read(i_read),
+		.i_push(i_push),
+		.d_read(d_read),
+		.d_push(d_push),
+		.d_write(d_write),
 		
 		.io_read(io_read),
 		.io_write(io_write),

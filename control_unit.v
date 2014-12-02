@@ -1,8 +1,11 @@
 module control_unit(
 	input clk,
 	
-	output reg mem_read = 0,
-	output reg mem_write = 0,
+	output reg i_read = 0,
+	output reg i_push = 0,
+	output reg d_read = 0,
+	output reg d_push = 0,
+	output reg d_write = 0,
 	
 	output reg io_read = 0,
 	output reg io_write = 0,
@@ -118,8 +121,11 @@ module control_unit(
 	th_nop = 4'b1111;
 	
 	always @ (posedge clk) begin
-		mem_read <= 0;
-		mem_write <= 0;
+		i_read <= 0;
+		i_push <= 0;
+		d_read <= 0;
+		d_push <= 0;
+		d_write <= 0;
 		io_addr_read <= 0;
 		io_read <= 0;
 		io_write <= 0;

@@ -15,24 +15,17 @@ module computer(
 	inout ps2_data
 	);
 
-	wire mem_read;
-	wire mem_write;
-	wire io_read;
-	wire io_write;
-	wire io_push;
-	wire io_store_retaddr;
-	wire io_push_retaddr;
-	wire io_push_ints;
-	wire io_interrupt;
-	wire [15:0] d_addr;
-	wire [15:0] i_addr;
-	wire [15:0] i_bus;
-	wire [15:0] d_bus;
+	wire i_read, i_push, d_read, d_push, d_write;
+	wire io_read, io_write, io_push, io_store_retaddr, io_push_retaddr, io_push_ints, io_interrupt;
+	wire [15:0] i_addr, d_addr, i_bus, d_bus;
 	
 	memory mem (
 		.clk(clk),
-		.read(mem_read),
-		.write(mem_write),
+		.i_read(i_read),
+		.i_push(i_push),
+		.d_read(d_read),
+		.d_push(d_push),
+		.d_write(d_write),
 		.i_bus(i_bus), 
 		.d_bus(d_bus), 
 		.d_addr(d_addr), 
@@ -62,8 +55,11 @@ module computer(
 
 	cpu cpu (
 		.clk(clk), 
-		.mem_read(mem_read),
-		.mem_write(mem_write),
+		.i_read(i_read),
+		.i_push(i_push),
+		.d_read(d_read),
+		.d_push(d_push),
+		.d_write(d_write),
 		.io_read(io_read),
 		.io_write(io_write),
 		.io_push(io_push),

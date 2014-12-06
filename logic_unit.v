@@ -26,29 +26,30 @@ module logic_unit(
 	reg [31:0] store;
 	
 	assign bus3 = 
-	pass ? bus1 : 
-	push ? store[15:0] :
-	16'bz;
+		pass ? bus1 : 
+		push ? store[15:0] :
+		16'bz;
 	
 	assign bus4 = 
-	pass_high ? bus2 : 
-	push_high ? store[31:16] :
-	16'bz;
+		dec ? bus2 - 1 : // To get dld in 3 cycles.
+		pass_high ? bus2 : 
+		push_high ? store[15:0] :
+		16'bz;
 
 	always @ (posedge clk) begin
 		store <= 
-		add ? {16'b0, bus1} + {16'b0, bus2} :
-		sub ? {16'b0, bus1} - {16'b0, bus2} :
-		inc ? {16'b0, bus1} + 1 :
-		dec ? {16'b0, bus1} - 1 :
-		mul ? {16'b0, bus1} * {16'b0, bus2} :
-		shr ? {16'b0, bus1} >> bus2 :
-		shl ? {16'b0, bus1} << bus2 :
-		band ? {16'b0, bus1} & {16'b0, bus2} :
-		bor ? {16'b0, bus1} | {16'b0, bus2} :
-		bxor ? {16'b0, bus1} ^ {16'b0, bus2} :
-		bnegate ? ~{16'b0, bus2} :
-		store;
+			add ? {16'b0, bus1} + {16'b0, bus2} :
+			sub ? {16'b0, bus1} - {16'b0, bus2} :
+			inc ? {16'b0, bus2} + 1 :
+			dec ? {16'b0, bus2} - 1 :
+			mul ? {16'b0, bus1} * {16'b0, bus2} :
+			shr ? {16'b0, bus1} >> bus2 :
+			shl ? {16'b0, bus1} << bus2 :
+			band ? {16'b0, bus1} & {16'b0, bus2} :
+			bor ? {16'b0, bus1} | {16'b0, bus2} :
+			bxor ? {16'b0, bus1} ^ {16'b0, bus2} :
+			bnegate ? ~{16'b0, bus2} :
+			store;
 	end
 
 endmodule

@@ -17,7 +17,7 @@ module computer(
 
 	wire i_read, i_push, d_read, d_push, d_write;
 	wire io_read, io_write, io_push, io_store_retaddr, io_push_retaddr, io_push_ints, io_interrupt;
-	wire [15:0] i_addr, d_addr, i_bus, d_bus;
+	wire [15:0] i_addr, d_addr, d_bus;
 	
 	memory mem (
 		.clk(clk),
@@ -26,7 +26,6 @@ module computer(
 		.d_read(d_read),
 		.d_push(d_push),
 		.d_write(d_write),
-		.i_bus(i_bus), 
 		.d_bus(d_bus), 
 		.d_addr(d_addr), 
 		.i_addr(i_addr)
@@ -63,7 +62,6 @@ module computer(
 		.io_read(io_read),
 		.io_write(io_write),
 		.io_push(io_push),
-		.i_bus(i_bus), 
 		.d_bus(d_bus), 
 		.d_addr(d_addr), 
 		.i_addr(i_addr),

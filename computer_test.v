@@ -40,7 +40,7 @@ module computer_test;
         
 		// Add stimulus here
 		#1000; // wait for cpu to process.
-		$display("Leds are %d, led");
+		$display("Leds are %d", led);
 		$finish;
 	
 

@@ -11,15 +11,16 @@ module memory(
 	// Buses
 	input      [15:0] d_addr,
 	input      [15:0] i_addr,
-	inout      [15:0] d_bus,
-	output     [15:0] i_bus
+	inout      [15:0] d_bus
 	);
 
 	reg [15:0] mem [255:0];
 	reg [15:0] i_store;
 	reg [15:0] d_store;
-	assign i_bus = i_push ? i_store : 16'bz;
-	assign d_bus = d_push ? d_store : 16'bz;
+	assign d_bus = 
+		i_push ? i_store :
+		d_push ? d_store : 
+		16'bz;
 	
 
 	integer i;
@@ -28,19 +29,19 @@ module memory(
 			mem[i] = 16'b0;
 		end
 		
-		mem[ 2] = 16'b0000000000010111;
+		
+		mem[ 2] = 16'b1111001100000001; // jmp r0
 	
-		mem[16] = 16'b1111111100010000; // Ldl r0
-		mem[17] = 16'b0000000000000000; // Literal
-		mem[18] = 16'b1111111100010001; // Ldl r1
-		mem[19] = 16'b0000000000010101; // Literal
-		mem[20] = 16'b1111111100110000; // Setf r0
-		mem[21] = 16'b1111001111110001; // jmp r1
-		mem[22] = 16'b0000000000000000; // nothing
-		mem[23] = 16'b1111111101100011; // Read interrupts.
-		mem[24] = 16'b1111100000100000; // IOI 2, r0
-		mem[25] = 16'b1111100100000000; // IOO 0, r0
-		mem[26] = 16'b1111111111110001; // ret interrupt.
+		mem[16] = 16'b1010000000000000; // Ldu r0
+		mem[17] = 16'b1011000000010100; // Ldl r0
+		mem[18] = 16'b1010000100000000; // Ldu r1
+		mem[19] = 16'b1011000100100000; // Ldl r1
+		//mem[20] = 16'b1111101000000001; // sti r0 -> r1
+		//mem[21] = 16'b1111101100010010; // ldl r1 -> r2
+		mem[20] = 16'b1111110000010011; // cal r1, r3
+		mem[21] = 16'b1111001100000000; // jmp r0
+		
+		mem[32] = 16'b1111001100000011; // jmp r3
 		
 	end
 	

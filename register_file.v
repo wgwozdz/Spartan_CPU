@@ -1,6 +1,7 @@
 module register_file(
 	input clk,
-	input reg3_write,
+	input reg3_writeu,
+	input reg3_writel,
 	input reg4_write,
 	
 	input   [3:0] reg1_addr, // register to R_Bus
@@ -20,8 +21,11 @@ module register_file(
 	assign reg2_bus = registers[reg2_addr];
 	
 	always @ (posedge clk) begin
-		if (reg3_write) begin
-			registers[reg3_addr] <= reg3_bus;
+		if (reg3_writeu) begin
+			registers[reg3_addr][15:8] <= reg3_bus[15:8];
+		end
+		if (reg3_writel) begin
+			registers[reg3_addr][7:0] <= reg3_bus[7:0];
 		end
 		if (reg4_write) begin
 			registers[reg4_addr] <= reg4_bus;

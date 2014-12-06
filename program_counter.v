@@ -4,11 +4,12 @@ module program_counter(
 	input load,
 	input push,
 	
-	inout [15:0] d_bus,
-	output reg [15:0] i_addr = 16
+	input [15:0] d_bus,
+	output [15:0] d_addr,
+	output reg [15:0] i_addr = 16 //TODO push i_addr on d_addr on i_read signal.
 	);
 
-	assign d_bus = push ? i_addr : 16'bz;
+	assign d_addr = push ? i_addr : 16'bz;
 
 	always @ (posedge clk) begin
 		if (increment) begin

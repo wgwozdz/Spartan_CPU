@@ -93,5 +93,6 @@ Temporary Items
 *.dll
 *.dat
 isim/*
+ipcore_dir/*
 *.ini
 *.wdb

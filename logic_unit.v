@@ -5,6 +5,8 @@ module logic_unit(
 	input pass_high,
 	input push,
 	input push_high,
+	input push_div,
+	input push_mod,
 	input add,
 	input sub,
 	input inc,
@@ -23,6 +25,8 @@ module logic_unit(
 	output [15:0] bus4
 	);
 
+	wire [15:0] divided, moded;
+	wire rfd;
 	//TODO: handle overflow flag?
 	//reg [31:0] store;
 	reg [15:0] store;
@@ -39,6 +43,8 @@ module logic_unit(
 		dec ? bus2 - 1 : // To get dld in 3 cycles.
 		pass_high ? bus2 : 
 		push_high ? store[15:0] :
+		push_div ? divided :
+		push_mod ? moded :
 		16'bz;
 
 	always @ (posedge clk) begin
@@ -56,5 +62,15 @@ module logic_unit(
 			bnegate ? ~{16'b0, bus2} :
 			store;
 	end
+	
+	//TODO: use a core with a different latency to reduce size.
+	div_gen_v3_0 div (
+		.clk(clk),
+		.rfd(rfd),
+		.dividend(bus1),
+		.quotient(divided),
+		.divisor(bus2),
+		.fractional(moded)
+	);
 
 endmodule

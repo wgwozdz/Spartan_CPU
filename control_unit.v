@@ -33,6 +33,8 @@ module control_unit(
 	output reg lu_pass_high = 0,
 	output reg lu_push = 0,
 	output reg lu_push_high = 0,
+	output reg lu_push_div = 0,
+	output reg lu_push_mod = 0,
 	output reg lu_add = 0,
 	output reg lu_sub = 0,
 	output reg lu_mul = 0,
@@ -66,11 +68,16 @@ module control_unit(
 		memreg_writeback = 6,
 		ioreg_writeback = 7,
 		alu_writeback = 8,
-		decode_int = 9,
+		div_writeback = 9,
+		div_wait = 10,
+		mod_writeback = 11,
+		mod_wait = 12,
+		decode_int = 13,
 		stop = 15;
 	reg [3:0] next_step = ins_flush;
 	
 	reg [7:0] instruction;
+	reg [5:0] wait_count;
 	
 	reg u_pass = 0;
 	reg l_pass = 0;
@@ -86,13 +93,14 @@ module control_unit(
 	z_sub = 4'b0010,
 	z_mul = 4'b0011,
 	z_div = 4'b0100,
-	z_and = 4'b0101,
-	z_or  = 4'b0110,
-	z_xor = 4'b0111,
-	z_shr = 4'b1000,
-	z_shl = 4'b1001,
-	z_ldu = 4'b1010,
-	z_ldl = 4'b1011,
+	z_mod = 4'b0101,
+	z_and = 4'b0110,
+	z_or  = 4'b0111,
+	z_xor = 4'b1000,
+	z_shr = 4'b1001,
+	z_shl = 4'b1010,
+	z_ldu = 4'b1011,
+	z_ldl = 4'b1100,
 	
 	// 2 Op code instructions.
 	o_mov = 4'b0001,
@@ -144,6 +152,8 @@ module control_unit(
 		lu_pass_high <= 0;
 		lu_push <= 0;
 		lu_push_high <= 0;
+		lu_push_div <= 0;
+		lu_push_mod <= 0;
 		lu_add <= 0;
 		lu_sub <= 0;
 		lu_mul <= 0;
@@ -199,6 +209,36 @@ module control_unit(
 				io_push <= 1;
 				reg3_write <= 1;
 				next_step <= fetch;
+			end
+			
+			div_writeback: begin
+				i_read <= 1;
+				lu_push_div <= 1;
+				reg4_write <= 1;
+				next_step <= fetch;
+			end
+			
+			//TODO: optimize this. use div core rfd to tighten wait.
+			div_wait: begin
+				wait_count <= wait_count - 1;
+				if (wait_count == 0) begin
+					next_step <= div_writeback;
+				end
+			end
+			
+			mod_writeback: begin
+				i_read <= 1;
+				lu_push_mod <= 1;
+				reg4_write <= 1;
+				next_step <= fetch;
+			end
+			
+			//TODO: optimize this. use div core rfd to tighten wait.
+			mod_wait: begin
+				wait_count <= wait_count - 1;
+				if (wait_count == 0) begin
+					next_step <= mod_writeback;
+				end
 			end
 		
 			ins_flush: begin
@@ -263,7 +303,21 @@ module control_unit(
 						next_step <= alu_writeback;
 					end
 					
-					//z_div TODO
+					z_div: begin
+						reg1_addr <= d_bus[11:8];
+						reg2_addr <= d_bus[7:4];
+						reg4_addr <= d_bus[3:0];
+						wait_count <= 30;
+						next_step <= div_wait;
+					end
+					
+					z_mod: begin
+						reg1_addr <= d_bus[11:8];
+						reg2_addr <= d_bus[7:4];
+						reg4_addr <= d_bus[3:0];
+						wait_count <= 30;
+						next_step <= mod_wait;
+					end
 					
 					z_and: begin
 						reg1_addr <= d_bus[11:8];
@@ -333,8 +387,9 @@ module control_unit(
 							o_cmp: begin
 								reg1_addr <= d_bus[7:4];
 								reg2_addr <= d_bus[3:0];
-								lu_push <= 1;
-								lu_push_high <= 1;
+								lu_passh <= 1;
+								lu_passl <= 1;
+								lu_pass_high <= 1;
 								cmp_compare <= 1;
 								next_step <= ins_flush;
 							end
@@ -440,6 +495,8 @@ module control_unit(
 									
 									t_stf: begin
 										reg1_addr <= d_bus[3:0];
+										lu_passh <= 1;
+										lu_passl <= 1;
 										cmp_load <= 1;
 										next_step <= ins_flush;
 									end

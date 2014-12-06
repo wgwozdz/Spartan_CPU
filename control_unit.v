@@ -63,6 +63,9 @@ module control_unit(
 		ins_flush = 4,
 		alu2_writeback = 5,
 		memreg_writeback = 6,
+		ioreg_writeback = 7,
+		alu_writeback = 8,
+		decode_int = 9,
 		stop = 15;
 	reg [3:0] next_step = ins_flush;
 	reg [3:0] further_step;
@@ -191,15 +194,47 @@ module control_unit(
 				next_step <= fetch;
 			end
 		
+			ioreg_writeback: begin
+				i_read <= 1;
+				io_addr_read <= 1;
+				io_push <= 1;
+				reg3_writeu <= 1;
+				reg3_writel <= 1;
+				next_step <= fetch;
+			end
+		
 			ins_flush: begin
 				i_read <= 1;
 				next_step <= fetch;
 			end
+			
+			decode_int: begin
+				d_push <= 1;
+				pc_load <= 1;
+				next_step <= ins_flush;
+			end
+			
+			alu_writeback: begin
+				i_read <= 1;
+				lu_push <= 1;
+				reg3_writeu <= 1;
+				reg3_writel <= 1;
+				next_step <= fetch;
+			end
 		
 			fetch: begin
-				i_push <= 1;
-				pc_increment <= 1;
-				next_step <= decode;
+				if (io_interrupt && !flags[2]) begin
+					cmp_mask_int <= 1;
+					pc_push <= 1;
+					io_store_retaddr <= 1;
+					io_push_int_addr <= 1;
+					d_read <= 1;
+					next_step <= decode_int;
+				end else begin
+					i_push <= 1;
+					pc_increment <= 1;
+					next_step <= decode;
+				end
 			end
 			
 			decode: begin
@@ -207,6 +242,71 @@ module control_unit(
 				
 				case (d_bus[15:12])
 					// 3 op instructions here.
+					z_add: begin
+						reg1_addr <= d_bus[11:8];
+						reg2_addr <= d_bus[7:4];
+						reg3_addr <= d_bus[3:0];
+						lu_add <= 1;
+						next_step <= alu_writeback;
+					end
+					
+					z_sub: begin
+						reg1_addr <= d_bus[11:8];
+						reg2_addr <= d_bus[7:4];
+						reg3_addr <= d_bus[3:0];
+						lu_sub <= 1;
+						next_step <= alu_writeback;
+					end
+					
+					z_mul: begin
+						reg1_addr <= d_bus[11:8];
+						reg2_addr <= d_bus[7:4];
+						reg3_addr <= d_bus[3:0];
+						lu_mul <= 1;
+						next_step <= alu_writeback;
+					end
+					
+					//z_div TODO
+					
+					z_and: begin
+						reg1_addr <= d_bus[11:8];
+						reg2_addr <= d_bus[7:4];
+						reg3_addr <= d_bus[3:0];
+						lu_band <= 1;
+						next_step <= alu_writeback;
+					end
+					
+					z_or: begin
+						reg1_addr <= d_bus[11:8];
+						reg2_addr <= d_bus[7:4];
+						reg3_addr <= d_bus[3:0];
+						lu_bor <= 1;
+						next_step <= alu_writeback;
+					end
+					
+					z_xor: begin
+						reg1_addr <= d_bus[11:8];
+						reg2_addr <= d_bus[7:4];
+						reg3_addr <= d_bus[3:0];
+						lu_bxor <= 1;
+						next_step <= alu_writeback;
+					end
+					
+					z_shl: begin
+						reg1_addr <= d_bus[11:8];
+						reg2_addr <= d_bus[7:4];
+						reg3_addr <= d_bus[3:0];
+						lu_shl <= 1;
+						next_step <= alu_writeback;
+					end
+					
+					z_shr: begin
+						reg1_addr <= d_bus[11:8];
+						reg2_addr <= d_bus[7:4];
+						reg3_addr <= d_bus[3:0];
+						lu_shr <= 1;
+						next_step <= alu_writeback;
+					end
 					
 					z_ldu: begin
 						reg3_addr <= d_bus[11:8];
@@ -222,8 +322,23 @@ module control_unit(
 						case (d_bus[11:8])
 							// 2 op instructions here.		
 							
+							o_mov: begin
+								reg1_addr <= d_bus[7:4];
+								reg3_addr <= d_bus[3:0];
+								lu_pass <= 1;
+								reg3_writeu <= 1;
+								reg3_writel <= 1;
+								next_step <= ins_flush;
+							end
+							
+							o_cmp: begin
+								reg1_addr <= d_bus[7:4];
+								reg2_addr <= d_bus[3:0];
+								cmp_compare <= 1;
+								next_step <= ins_flush;
+							end
+							
 							o_jmp : begin
-								//TODO: add conditionals.
 								reg1_addr <= d_bus[3:0];
 								lu_pass <= 1;
 								if ((d_bus[4] &&  flags[0]) || // Equals
@@ -232,6 +347,47 @@ module control_unit(
 								begin
 									pc_load <= 1;	
 								end
+								next_step <= ins_flush;
+							end
+							
+							o_ldm: begin
+								reg2_addr <= d_bus[7:4];
+								reg3_addr <= d_bus[3:0];
+								d_read <= 1;
+								lu_pass_high <= 1;
+								next_step <= memreg_writeback;
+							end
+							
+							o_stm: begin
+								reg1_addr <= d_bus[3:0];
+								reg2_addr <= d_bus[7:4];
+								lu_pass <= 1;
+								lu_pass_high <= 1;
+								d_write <= 1;
+								next_step <= ins_flush;
+							end
+							
+							o_neg: begin
+								reg1_addr <= d_bus[7:4];
+								reg3_addr <= d_bus[3:0];
+								lu_bnegate <= 1;
+								next_step <= alu_writeback;
+							end
+							
+							o_ioi: begin
+								io_addr <= d_bus[7:4];
+								reg3_addr <= d_bus[3:0];
+								io_addr_read <= 1;
+								io_read <= 1;
+								next_step <= ioreg_writeback;
+							end
+							
+							o_ioo: begin
+								io_addr <= d_bus[7:4];
+								reg1_addr <= d_bus[3:0];
+								io_addr_read <= 1;
+								lu_pass <= 1;
+								io_write <= 1;
 								next_step <= ins_flush;
 							end
 							
@@ -269,10 +425,47 @@ module control_unit(
 							more_ops: begin
 								case (d_bus[7:4])
 									// 1 op instructions here.
+									t_gtf: begin
+										reg3_addr <= d_bus[3:0];
+										flags_pass <= 1;
+										reg3_writeu <= 1;
+										reg3_writel <= 1;
+										next_step <= ins_flush;
+									end
 									
+									t_stf: begin
+										reg1_addr <= d_bus[3:0];
+										cmp_load <= 1;
+										next_step <= ins_flush;
+									end
+									
+									t_inc: begin
+										reg2_addr <= d_bus[3:0];
+										reg3_addr <= d_bus[3:0];
+										lu_inc <= 1;
+										next_step <= alu_writeback;
+									end
+									
+									t_dec: begin
+										reg2_addr <= d_bus[3:0];
+										reg3_addr <= d_bus[3:0];
+										lu_dec <= 1;
+										next_step <= alu_writeback;
+									end
+
 									more_ops: begin
 										case (d_bus[3:0])
 											// 0 op instructions here.
+											th_rit: begin
+												io_push_retaddr <= 1;
+												pc_load <= 1;
+												cmp_unmask_int <= 1;
+												next_step <= ins_flush;
+											end
+											
+											more_ops: begin
+												next_step <= ins_flush;
+											end
 											
 											default: next_step <= stop;
 										endcase

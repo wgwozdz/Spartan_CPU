@@ -1,7 +1,6 @@
 module register_file(
 	input clk,
-	input reg3_writeu,
-	input reg3_writel,
+	input reg3_write,
 	input reg4_write,
 	
 	input   [3:0] reg1_addr, // register to R_Bus
@@ -15,20 +14,26 @@ module register_file(
 	input  [15:0] reg4_bus
 	);
 
-	reg [15:0] registers [15:0];
+	(* ram_style = "distributed" *) reg [15:0] registers [15:0];
 
 	assign reg1_bus = registers[reg1_addr];
 	assign reg2_bus = registers[reg2_addr];
 	
+	// You can only write one bus at a time.
+	assign write = reg3_write || reg4_write;
+	wire [3:0] write_addr;
+	wire [15:0] write_bus;
+	assign write_addr = 
+		reg3_write ? reg3_addr :
+		reg4_addr;
+	assign write_bus = 
+		reg3_write ? reg3_bus :
+		reg4_bus;
+	
+	
 	always @ (posedge clk) begin
-		// TODO: refactor this so it doesnt use so many LUTs.
-		// Maybe have push upper/lower signal on lu_push_upper, push other half from control unit and save whole reg.
-		if (reg3_writeu) begin 
-			registers[reg3_addr][15:8] <= reg3_bus[15:8];
-		end else if (reg3_writel) begin
-			registers[reg3_addr][7:0] <= reg3_bus[7:0];
-		end else if (reg4_write) begin
-			registers[reg4_addr] <= reg4_bus;
+		if (write) begin
+			registers[write_addr] <= write_bus;
 		end
 	end
 

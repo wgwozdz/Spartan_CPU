@@ -1,6 +1,7 @@
 module logic_unit(
 	input clk,
-	input pass,
+	input passh,
+	input passl,
 	input pass_high,
 	input push,
 	input push_high,
@@ -23,11 +24,15 @@ module logic_unit(
 	);
 
 	//TODO: handle overflow flag?
-	reg [31:0] store;
-	
-	assign bus3 = 
-		pass ? bus1 : 
-		push ? store[15:0] :
+	//reg [31:0] store;
+	reg [15:0] store;
+	assign bus3 [15:8] = 
+		passh ? bus1[15:8] : 
+		push ? store[15:8] :
+		16'bz;
+	assign bus3 [7:0] = 
+		passl ? bus1[7:0] : 
+		push ? store[7:0] :
 		16'bz;
 	
 	assign bus4 = 

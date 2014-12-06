@@ -42,7 +42,7 @@ module logic_unit(
 			sub ? {16'b0, bus1} - {16'b0, bus2} :
 			inc ? {16'b0, bus2} + 1 :
 			dec ? {16'b0, bus2} - 1 :
-			mul ? {16'b0, bus1} * {16'b0, bus2} :
+			mul ? {bus1} * {bus2} :
 			shr ? {16'b0, bus1} >> bus2 :
 			shl ? {16'b0, bus1} << bus2 :
 			band ? {16'b0, bus1} & {16'b0, bus2} :

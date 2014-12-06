@@ -14,22 +14,18 @@ module memory(
 	inout      [15:0] d_bus
 	);
 
-	reg [15:0] mem [255:0];
-	reg [15:0] i_store;
-	reg [15:0] d_store;
+	(* ram_style = "block" *) reg [15:0] mem [255:0];
+	reg [15:0] m_store;
 	assign d_bus = 
-		i_push ? i_store :
-		d_push ? d_store : 
+		i_push ? m_store :
+		d_push ? m_store : 
 		16'bz;
-	
 
 	integer i;
 	initial begin
 		for (i = 0; i < 256; i = i + 1) begin
 			mem[i] = 16'b0;
 		end
-		
-		
 		mem[ 2] = 16'b1111001100000001; // jmp r0
 	
 		mem[16] = 16'b1010000000000000; // Ldu r0
@@ -49,18 +45,21 @@ module memory(
 		mem[28] = 16'b1111111100101001; // setf r9
 		mem[29] = 16'b1111111100011011; // getf r11
 		mem[30] = 16'b1111111111111111; // noop
-		mem[31] = 16'b1111001111110000; // jmp r0
-		
-		
+		mem[31] = 16'b1111001111110000; // jmp r0	
 	end
 	
+	assign read = d_read || i_read;
+	wire [15:0] addr;
+	assign addr = 
+		d_read ? d_addr :
+		i_read ? i_addr :
+		d_addr;
+
 	always @ (posedge clk) begin
-		if (i_read) begin
-			i_store <= mem[i_addr];
-		end else if (d_read) begin
-			d_store <= mem[d_addr];
+		if (read) begin
+			m_store <= mem[addr];
 		end else if (d_write) begin
-			mem[d_addr] <= d_bus;
+			mem[addr] <= d_bus;
 		end
 	end
 

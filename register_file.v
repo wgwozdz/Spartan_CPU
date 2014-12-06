@@ -23,11 +23,9 @@ module register_file(
 	always @ (posedge clk) begin
 		if (reg3_writeu) begin
 			registers[reg3_addr][15:8] <= reg3_bus[15:8];
-		end
-		if (reg3_writel) begin
+		end else if (reg3_writel) begin
 			registers[reg3_addr][7:0] <= reg3_bus[7:0];
-		end
-		if (reg4_write) begin
+		end else if (reg4_write) begin
 			registers[reg4_addr] <= reg4_bus;
 		end
 	end

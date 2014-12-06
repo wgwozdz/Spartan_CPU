@@ -68,7 +68,6 @@ module control_unit(
 		decode_int = 9,
 		stop = 15;
 	reg [3:0] next_step = ins_flush;
-	reg [3:0] further_step;
 	
 	reg [15:0] instruction;
 	

@@ -23,6 +23,7 @@ module control_unit(
 	output reg pc_push = 0,
 	
 	output reg cmp_load = 0,
+	output reg cmp_push = 0,
 	output reg cmp_compare = 0,
 	output reg cmp_mask_int = 0,
 	output reg cmp_unmask_int = 0,
@@ -51,7 +52,7 @@ module control_unit(
 	output reg [3:0] reg3_addr = 0,
 	output reg [3:0] reg4_addr = 0,
 	
-	input [15:0] flags,
+	input [2:0] flags,
 	inout [15:0] d_bus
 	);
 
@@ -69,15 +70,13 @@ module control_unit(
 		stop = 15;
 	reg [3:0] next_step = ins_flush;
 	
-	reg [15:0] instruction;
+	reg [7:0] instruction;
 	
-	reg flags_pass = 0;
 	reg u_pass = 0;
 	reg l_pass = 0;
 	assign d_bus = 
 	u_pass ? {instruction[7:0], 8'b0} :
 	l_pass ? {8'b0, instruction[7:0]} :
-	flags_pass ? flags :
 	16'bz;
 	
 	localparam
@@ -136,6 +135,7 @@ module control_unit(
 		pc_increment <= 0;
 		pc_push <= 0;
 		cmp_load <= 0;
+		cmp_push <= 0;
 		cmp_compare <= 0;
 		cmp_mask_int <= 0;
 		cmp_unmask_int <= 0;
@@ -159,7 +159,6 @@ module control_unit(
 		reg4_write <= 0;
 		u_pass <= 0;
 		l_pass <= 0;
-		flags_pass <= 0;
 
 		case (next_step)
 			stop: begin end
@@ -237,7 +236,7 @@ module control_unit(
 			end
 			
 			decode: begin
-				instruction <= d_bus;
+				instruction <= d_bus[7:0];
 				
 				case (d_bus[15:12])
 					// 3 op instructions here.
@@ -333,6 +332,8 @@ module control_unit(
 							o_cmp: begin
 								reg1_addr <= d_bus[7:4];
 								reg2_addr <= d_bus[3:0];
+								lu_push <= 1;
+								lu_push_high <= 1;
 								cmp_compare <= 1;
 								next_step <= ins_flush;
 							end
@@ -426,7 +427,7 @@ module control_unit(
 									// 1 op instructions here.
 									t_gtf: begin
 										reg3_addr <= d_bus[3:0];
-										flags_pass <= 1;
+										cmp_push <= 1;
 										reg3_writeu <= 1;
 										reg3_writel <= 1;
 										next_step <= ins_flush;

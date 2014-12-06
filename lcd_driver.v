@@ -14,7 +14,7 @@ module lcd_driver(
 	wire [4:0] mem_addr;
 	wire [7:0] mem_bus;
 
-	reg [7:0] lcd_mem [31:0];
+	(* ram_style = "distributed" *) reg [7:0] lcd_mem [31:0];
 
 	integer i;
 	initial begin

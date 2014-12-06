@@ -24,10 +24,11 @@ module cpu(
 	output [15:0] i_addr
 	);
 
-	wire [15:0] r_bus, s_bus, f_bus;
+	wire [2:0] f_bus; // Expand as necessary.
+	wire [15:0] r_bus, s_bus;
 
 	wire pc_increment, pc_load, pc_push;
-	wire cmp_load, cmp_compare, cmp_mask_int, cmp_unmask_int;
+	wire cmp_load, cmp_push, cmp_compare, cmp_mask_int, cmp_unmask_int;
 	wire lu_pass, lu_pass_high, lu_push, lu_push_high, lu_add, lu_sub, lu_mul, lu_inc, lu_dec,
 		  lu_shr, lu_shl, lu_band, lu_bor, lu_bxor, lu_bnegate;
 	wire reg3_writeu, reg3_writel, reg4_write;
@@ -66,13 +67,14 @@ module cpu(
 	comparator comparator (
 		.clk(clk),
 		.load(cmp_load),
+		.push(cmp_push),
 		.compare(cmp_compare),
 		.mask_int(cmp_mask_int),
 		.unmask_int(cmp_unmask_int),
 		
-		.bus1(r_bus),
-		.bus2(s_bus),
-		.flags(f_bus)
+		.bus1(d_bus),
+		.bus2(d_addr),
+		.f_bus(f_bus)
 	);
 	
 	logic_unit logic_unit (
@@ -130,6 +132,7 @@ module cpu(
 		.pc_push(pc_push),
 		
 		.cmp_load(cmp_load),
+		.cmp_push(cmp_push),
 		.cmp_compare(cmp_compare),
 		.cmp_mask_int(cmp_mask_int),
 		.cmp_unmask_int(cmp_unmask_int),

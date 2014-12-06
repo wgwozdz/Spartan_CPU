@@ -1,14 +1,19 @@
 module comparator(
 	input clk,
-	input compare,
 	input load,
+	input push,
+	input compare,
 	input mask_int,
 	input unmask_int,
 	
-	input [15:0] bus1,
+	inout [15:0] bus1,
 	input [15:0] bus2,
-	output reg [15:0] flags = 16'b0000000000000100
+	output [2:0] f_bus
 	);
+	
+	reg [15:0] flags = 16'b0000000000000100;
+	assign f_bus = flags[2:0];
+	assign bus1 = push ? flags : 16'bz;
 	
 	always @ (posedge clk) begin
 		if (mask_int) begin

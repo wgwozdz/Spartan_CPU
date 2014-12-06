@@ -15,7 +15,7 @@ module keyboard_driver(
 	reg [7:0] cmd_out;
 	reg cmd_send;
 	
-	reg [7:0] buff [31:0];
+	(* ram_style = "distributed" *) reg [7:0] buff [31:0];
 	reg [4:0] r;
 	reg [4:0] w;
 	

@@ -21,7 +21,9 @@ module register_file(
 	assign reg2_bus = registers[reg2_addr];
 	
 	always @ (posedge clk) begin
-		if (reg3_writeu) begin
+		// TODO: refactor this so it doesnt use so many LUTs.
+		// Maybe have push upper/lower signal on lu_push_upper, push other half from control unit and save whole reg.
+		if (reg3_writeu) begin 
 			registers[reg3_addr][15:8] <= reg3_bus[15:8];
 		end else if (reg3_writel) begin
 			registers[reg3_addr][7:0] <= reg3_bus[7:0];

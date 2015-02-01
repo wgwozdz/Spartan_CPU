@@ -416,8 +416,8 @@ module control_unit(
 							end
 							
 							o_stm: begin
-								reg1_addr <= d_bus[3:0];
-								reg2_addr <= d_bus[7:4];
+								reg1_addr <= d_bus[7:4];
+								reg2_addr <= d_bus[3:0];
 								lu_passh <= 1;
 								lu_passl <= 1;
 								lu_pass_high <= 1;
@@ -441,8 +441,8 @@ module control_unit(
 							end
 							
 							o_ioo: begin
-								io_addr <= d_bus[7:4];
-								reg1_addr <= d_bus[3:0];
+								io_addr <= d_bus[3:0];
+								reg1_addr <= d_bus[7:4];
 								io_addr_read <= 1;
 								lu_passh <= 1;
 								lu_passl <= 1;

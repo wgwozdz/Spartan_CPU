@@ -400,7 +400,8 @@ module control_unit(
 								lu_passl <= 1;
 								if ((d_bus[4] &&  flags[0]) || // Equals
 									 (d_bus[5] && ~flags[1] && ~flags[0]) || // Less than
-									 (d_bus[6] &&  flags[1] && ~flags[0]))   // Greater than
+									 (d_bus[6] &&  flags[1] && ~flags[0]) || // Greater than
+									 (d_bus[7])) // Always: flags may not be in a consistent state
 								begin
 									pc_load <= 1;	
 								end

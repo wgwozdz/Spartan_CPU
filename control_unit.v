@@ -399,8 +399,8 @@ module control_unit(
 								lu_passh <= 1;
 								lu_passl <= 1;
 								if ((d_bus[4] &&  flags[0]) || // Equals
-									 (d_bus[5] && ~flags[1]) || // Less than
-									 (d_bus[6] &&  flags[1]))   // Greater than
+									 (d_bus[5] && ~flags[1] && ~flags[0]) || // Less than
+									 (d_bus[6] &&  flags[1] && ~flags[0]))   // Greater than
 								begin
 									pc_load <= 1;	
 								end

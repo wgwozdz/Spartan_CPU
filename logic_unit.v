@@ -59,7 +59,7 @@ module logic_unit(
 			band ? {16'b0, bus1} & {16'b0, bus2} :
 			bor ? {16'b0, bus1} | {16'b0, bus2} :
 			bxor ? {16'b0, bus1} ^ {16'b0, bus2} :
-			bnegate ? ~{16'b0, bus2} :
+			bnegate ? ~{16'b0, bus1} :
 			store;
 	end
 	

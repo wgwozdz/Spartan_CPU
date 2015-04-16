@@ -94,5 +94,6 @@ Temporary Items
 *.dat
 isim/*
 ipcore_dir/*
+netgen/*
 *.ini
 *.wdb

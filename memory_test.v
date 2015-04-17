@@ -49,7 +49,7 @@ module memory_test;
 		// Wait 100 ns for global reset to finish
 		#100;
 		
-		d_addr <= 3;
+		d_addr <= 289;
 		d_bus_back <= 47;
 		d_write <= 1;
 		

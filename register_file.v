@@ -14,16 +14,25 @@ module register_file(
 
 	(* ram_style = "distributed" *) reg [15:0] registers [15:0];
 
+	//TODO: make synchronous?
 	assign reg1_obus = registers[reg1_addr];
 	assign reg2_obus = registers[reg2_addr];
 	
+	//TODO: remove single-write restriction
+	/* This currently infers as 2 rams, with each having one port
+	 * asynchronous read connected to either reg1 or reg2,
+	 * and the other port connected to write addr/bus. It would be nice 
+	 * for it to work as block ram.
+	 */
+	wire [3:0] write_addr;
+	wire [15:0] write_bus;
+	assign write = reg1_write || reg2_write;
+	assign write_addr = reg1_write ? reg1_addr : reg2_addr;
+	assign write_bus = reg1_write ? reg1_ibus : reg2_ibus;
+	
 	always @ (posedge clk) begin
-		if (reg1_write) begin
-			registers[reg1_addr] <= reg1_ibus;
-		end
-		
-		if (reg2_write) begin
-			registers[reg2_addr] <= reg2_ibus;
+		if (write) begin
+			registers[write_addr] <= write_bus;
 		end
 	end
 

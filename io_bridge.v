@@ -50,6 +50,17 @@ module io_bridge(
 		.lcd_d(lcd_d)
 	);
 	
+	wire timer_read, timer_write, timer_interrupt;
+	wire [15:0] timer_in, timer_out;
+	timer timer (
+		.clk(clk),
+		.read(timer_read),
+		.write(timer_write),
+		.interrupt(timer_interrupt),
+		.in_bus(timer_in),
+		.out_bus(timer_out)
+	);
+	
 	wire key_read, key_write, key_interrupt;
 	wire [15:0] key_in, key_out;
 	keyboard_driver key (
@@ -99,19 +110,21 @@ module io_bridge(
 	assign out_store = 
 	d_addr[ 0] ? led_out :
 	d_addr[ 1] ? lcd_out :
-	d_addr[ 2] ? key_out :
+	d_addr[ 2] ? timer_out :
+	d_addr[ 3] ? key_out :
 	16'bz0;
 
 	// Wire IOs to inputs
 	assign {led_read, led_write, led_in} = d_addr[ 0] ? {read, write, d_bus} : 0;
 	assign {lcd_read, lcd_write, lcd_in} = d_addr[ 1] ? {read, write, d_bus} : 0;
-	assign {key_read, key_write, key_in} = d_addr[ 2] ? {read, write, d_bus} : 0;
+	assign {timer_read, timer_write, timer_in} = d_addr[ 2] ? {read, write, d_bus} : 0;
+	assign {key_read, key_write, key_in} = d_addr[ 3] ? {read, write, d_bus} : 0;
 
 	// Wire interrupts
 	assign interrupts[ 0] = 0;
 	assign interrupts[ 1] = 0;
-	assign interrupts[ 2] = key_interrupt;
-	assign interrupts[ 3] = 0;
+	assign interrupts[ 2] = timer_interrupt;
+	assign interrupts[ 3] = key_interrupt;
 	assign interrupts[ 4] = 0;
 	assign interrupts[ 5] = 0;
 	assign interrupts[ 6] = 0;

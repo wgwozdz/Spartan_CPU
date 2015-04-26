@@ -12,7 +12,7 @@ module lcd_driver(
 	);
 
 	wire [4:0] mem_addr;
-	reg [7:0] mem_bus;
+	wire [7:0] mem_bus;
 
 	(* ram_style = "distributed" *) reg [7:0] lcd_mem [31:0];
 
@@ -23,10 +23,10 @@ module lcd_driver(
 			lcd_mem[i] = " ";
 		end
 	end
+	
+	assign mem_bus = lcd_mem[mem_addr]; //TODO: make this synchronous
 
 	always @ (posedge clk) begin
-		mem_bus <= lcd_mem[mem_addr]; //TODO: verify this still works synchronously.
-	
 		if (write) begin
 			lcd_mem[in_bus[15:8]] <= in_bus[7:0];
 		end

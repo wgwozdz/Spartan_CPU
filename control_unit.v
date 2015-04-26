@@ -31,6 +31,7 @@ module control_unit(
 	output reg lu_passh = 0,
 	output reg lu_passl = 0,
 	output reg lu_pass_high = 0,
+	output reg lu_swap = 0,
 	output reg lu_push = 0,
 	output reg lu_push_high = 0,
 	output reg lu_push_div = 0,
@@ -47,12 +48,10 @@ module control_unit(
 	output reg lu_bxor = 0,
 	output reg lu_bnegate = 0,
 	
-	output reg reg3_write = 0,
-	output reg reg4_write = 0,
+	output reg reg1_write = 0,
+	output reg reg2_write = 0,
 	output reg [3:0] reg1_addr = 0,
 	output reg [3:0] reg2_addr = 0,
-	output reg [3:0] reg3_addr = 0,
-	output reg [3:0] reg4_addr = 0,
 	
 	input [2:0] flags,
 	inout [15:0] d_bus
@@ -78,6 +77,9 @@ module control_unit(
 	
 	reg [7:0] instruction;
 	reg [5:0] wait_count;
+	
+	reg [3:0] next_reg1_addr = 0;
+	reg [3:0] next_reg2_addr = 0;
 	
 	reg u_pass = 0;
 	reg l_pass = 0;
@@ -150,6 +152,7 @@ module control_unit(
 		lu_passh <= 0;
 		lu_passl <= 0;
 		lu_pass_high <= 0;
+		lu_swap <= 0;
 		lu_push <= 0;
 		lu_push_high <= 0;
 		lu_push_div <= 0;
@@ -165,8 +168,8 @@ module control_unit(
 		lu_bor <= 0;
 		lu_bxor <= 0;
 		lu_bnegate <= 0;
-		reg3_write <= 0;
-		reg4_write <= 0;
+		reg1_write <= 0;
+		reg2_write <= 0;
 		u_pass <= 0;
 		l_pass <= 0;
 
@@ -177,7 +180,8 @@ module control_unit(
 				i_read <= 1;
 				u_pass <= 1;
 				lu_passl <= 1;
-				reg3_write <= 1;
+				reg1_addr <= next_reg1_addr;
+				reg1_write <= 1;
 				next_step <= fetch;
 			end
 		
@@ -185,21 +189,24 @@ module control_unit(
 				i_read <= 1;
 				l_pass <= 1;
 				lu_passh <= 1;
-				reg3_write <= 1;
+				reg1_addr <= next_reg1_addr;
+				reg1_write <= 1;
 				next_step <= fetch;
 			end
 			
 			alu2_writeback: begin
 				i_read <= 1;
 				lu_push_high <= 1;
-				reg4_write <= 1;
+				reg2_addr <= next_reg2_addr;
+				reg2_write <= 1;
 				next_step <= fetch;
 			end
 			
 			memreg_writeback: begin
 				i_read <= 1;
 				d_push <= 1;
-				reg3_write <= 1;
+				reg1_addr <= next_reg1_addr;
+				reg1_write <= 1;
 				next_step <= fetch;
 			end
 		
@@ -207,14 +214,16 @@ module control_unit(
 				i_read <= 1;
 				io_addr_read <= 1;
 				io_push <= 1;
-				reg3_write <= 1;
+				reg1_addr <= next_reg1_addr;
+				reg1_write <= 1;
 				next_step <= fetch;
 			end
 			
 			div_writeback: begin
 				i_read <= 1;
 				lu_push_div <= 1;
-				reg4_write <= 1;
+				reg2_addr <= next_reg2_addr;
+				reg2_write <= 1;
 				next_step <= fetch;
 			end
 			
@@ -229,7 +238,8 @@ module control_unit(
 			mod_writeback: begin
 				i_read <= 1;
 				lu_push_mod <= 1;
-				reg4_write <= 1;
+				reg2_addr <= next_reg2_addr;
+				reg2_write <= 1;
 				next_step <= fetch;
 			end
 			
@@ -255,7 +265,8 @@ module control_unit(
 			alu_writeback: begin
 				i_read <= 1;
 				lu_push <= 1;
-				reg3_write <= 1;
+				reg1_addr <= next_reg1_addr;
+				reg1_write <= 1;
 				next_step <= fetch;
 			end
 		
@@ -282,7 +293,7 @@ module control_unit(
 					z_add: begin
 						reg1_addr <= d_bus[11:8];
 						reg2_addr <= d_bus[7:4];
-						reg3_addr <= d_bus[3:0];
+						next_reg1_addr <= d_bus[3:0];
 						lu_add <= 1;
 						next_step <= alu_writeback;
 					end
@@ -290,7 +301,7 @@ module control_unit(
 					z_sub: begin
 						reg1_addr <= d_bus[11:8];
 						reg2_addr <= d_bus[7:4];
-						reg3_addr <= d_bus[3:0];
+						next_reg1_addr <= d_bus[3:0];
 						lu_sub <= 1;
 						next_step <= alu_writeback;
 					end
@@ -298,7 +309,7 @@ module control_unit(
 					z_mul: begin
 						reg1_addr <= d_bus[11:8];
 						reg2_addr <= d_bus[7:4];
-						reg3_addr <= d_bus[3:0];
+						next_reg1_addr <= d_bus[3:0];
 						lu_mul <= 1;
 						next_step <= alu_writeback;
 					end
@@ -306,7 +317,7 @@ module control_unit(
 					z_div: begin
 						reg1_addr <= d_bus[11:8];
 						reg2_addr <= d_bus[7:4];
-						reg4_addr <= d_bus[3:0];
+						next_reg2_addr <= d_bus[3:0];
 						wait_count <= 30;
 						next_step <= div_wait;
 					end
@@ -314,7 +325,7 @@ module control_unit(
 					z_mod: begin
 						reg1_addr <= d_bus[11:8];
 						reg2_addr <= d_bus[7:4];
-						reg4_addr <= d_bus[3:0];
+						next_reg2_addr <= d_bus[3:0];
 						wait_count <= 30;
 						next_step <= mod_wait;
 					end
@@ -322,7 +333,7 @@ module control_unit(
 					z_and: begin
 						reg1_addr <= d_bus[11:8];
 						reg2_addr <= d_bus[7:4];
-						reg3_addr <= d_bus[3:0];
+						next_reg1_addr <= d_bus[3:0];
 						lu_band <= 1;
 						next_step <= alu_writeback;
 					end
@@ -330,7 +341,7 @@ module control_unit(
 					z_or: begin
 						reg1_addr <= d_bus[11:8];
 						reg2_addr <= d_bus[7:4];
-						reg3_addr <= d_bus[3:0];
+						next_reg1_addr <= d_bus[3:0];
 						lu_bor <= 1;
 						next_step <= alu_writeback;
 					end
@@ -338,7 +349,7 @@ module control_unit(
 					z_xor: begin
 						reg1_addr <= d_bus[11:8];
 						reg2_addr <= d_bus[7:4];
-						reg3_addr <= d_bus[3:0];
+						next_reg1_addr <= d_bus[3:0];
 						lu_bxor <= 1;
 						next_step <= alu_writeback;
 					end
@@ -346,7 +357,7 @@ module control_unit(
 					z_shl: begin
 						reg1_addr <= d_bus[11:8];
 						reg2_addr <= d_bus[7:4];
-						reg3_addr <= d_bus[3:0];
+						next_reg1_addr <= d_bus[3:0];
 						lu_shl <= 1;
 						next_step <= alu_writeback;
 					end
@@ -354,20 +365,20 @@ module control_unit(
 					z_shr: begin
 						reg1_addr <= d_bus[11:8];
 						reg2_addr <= d_bus[7:4];
-						reg3_addr <= d_bus[3:0];
+						next_reg1_addr <= d_bus[3:0];
 						lu_shr <= 1;
 						next_step <= alu_writeback;
 					end
 					
 					z_ldu: begin
 						reg1_addr <= d_bus[11:8];
-						reg3_addr <= d_bus[11:8];
+						next_reg1_addr <= d_bus[11:8];
 						next_step <= upper_writeback;
 					end
 					
 					z_ldl: begin
 						reg1_addr <= d_bus[11:8];
-						reg3_addr <= d_bus[11:8];
+						next_reg1_addr <= d_bus[11:8];
 						next_step <= lower_writeback;
 					end
 					
@@ -377,10 +388,9 @@ module control_unit(
 							
 							o_mov: begin
 								reg1_addr <= d_bus[7:4];
-								reg3_addr <= d_bus[3:0];
-								lu_passh <= 1;
-								lu_passl <= 1;
-								reg3_write <= 1;
+								reg2_addr <= d_bus[3:0];
+								lu_swap <= 1;
+								reg2_write <= 1;
 								next_step <= ins_flush;
 							end
 							
@@ -410,7 +420,7 @@ module control_unit(
 							
 							o_ldm: begin
 								reg2_addr <= d_bus[7:4];
-								reg3_addr <= d_bus[3:0];
+								next_reg1_addr <= d_bus[3:0];
 								d_read <= 1;
 								lu_pass_high <= 1;
 								next_step <= memreg_writeback;
@@ -428,14 +438,14 @@ module control_unit(
 							
 							o_neg: begin
 								reg1_addr <= d_bus[7:4];
-								reg3_addr <= d_bus[3:0];
+								next_reg1_addr <= d_bus[3:0];
 								lu_bnegate <= 1;
 								next_step <= alu_writeback;
 							end
 							
 							o_ioi: begin
 								io_addr <= d_bus[7:4];
-								reg3_addr <= d_bus[3:0];
+								next_reg1_addr <= d_bus[3:0];
 								io_addr_read <= 1;
 								io_read <= 1;
 								next_step <= ioreg_writeback;
@@ -454,7 +464,7 @@ module control_unit(
 							o_sti: begin
 								reg1_addr <= d_bus[7:4];
 								reg2_addr <= d_bus[3:0];
-								reg4_addr <= d_bus[3:0];
+								next_reg2_addr <= d_bus[3:0];
 								lu_pass_high <= 1;
 								lu_passh <= 1;
 								lu_passl <= 1;
@@ -465,22 +475,21 @@ module control_unit(
 							
 							o_dld: begin
 								reg2_addr <= d_bus[7:4];
-								reg3_addr <= d_bus[3:0];
-								reg4_addr <= d_bus[7:4];
+								next_reg1_addr <= d_bus[3:0];
 								lu_dec <= 1;
 								d_read <= 1;
-								reg4_write <= 1;
+								reg2_write <= 1;
 								next_step <= memreg_writeback;
 							end
 							
 							o_cal: begin
 								reg1_addr <= d_bus[7:4];
-								reg4_addr <= d_bus[3:0];
+								reg2_addr <= d_bus[3:0];
 								lu_passh <= 1;
 								lu_passl <= 1;
 								pc_load <= 1;
 								pc_push <= 1;
-								reg4_write <= 1;
+								reg2_write <= 1;
 								next_step <= ins_flush;
 							end
 							
@@ -488,9 +497,9 @@ module control_unit(
 								case (d_bus[7:4])
 									// 1 op instructions here.
 									t_gtf: begin
-										reg3_addr <= d_bus[3:0];
+										reg1_addr <= d_bus[3:0];
 										cmp_push <= 1;
-										reg3_write <= 1;
+										reg1_write <= 1;
 										next_step <= ins_flush;
 									end
 									
@@ -504,14 +513,14 @@ module control_unit(
 									
 									t_inc: begin
 										reg2_addr <= d_bus[3:0];
-										reg3_addr <= d_bus[3:0];
+										next_reg1_addr <= d_bus[3:0];
 										lu_inc <= 1;
 										next_step <= alu_writeback;
 									end
 									
 									t_dec: begin
 										reg2_addr <= d_bus[3:0];
-										reg3_addr <= d_bus[3:0];
+										next_reg1_addr <= d_bus[3:0];
 										lu_dec <= 1;
 										next_step <= alu_writeback;
 									end

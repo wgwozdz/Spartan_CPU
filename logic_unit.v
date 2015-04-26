@@ -3,6 +3,7 @@ module logic_unit(
 	input passh,
 	input passl,
 	input pass_high,
+	input swap,
 	input push,
 	input push_high,
 	input push_div,
@@ -28,15 +29,16 @@ module logic_unit(
 	wire [15:0] divided, moded;
 	wire rfd;
 	//TODO: handle overflow flag?
-	//reg [31:0] store;
 	reg [15:0] store;
 	assign bus3 [15:8] = 
 		passh ? bus1[15:8] : 
 		push ? store[15:8] :
+		swap ? bus2[15:8] :
 		16'bz;
 	assign bus3 [7:0] = 
 		passl ? bus1[7:0] : 
 		push ? store[7:0] :
+		swap ? bus2[7:0] :
 		16'bz;
 	
 	assign bus4 = 
@@ -45,6 +47,7 @@ module logic_unit(
 		push_high ? store[15:0] :
 		push_div ? divided :
 		push_mod ? moded :
+		swap ? bus1 :
 		16'bz;
 
 	always @ (posedge clk) begin

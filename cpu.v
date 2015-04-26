@@ -29,28 +29,26 @@ module cpu(
 
 	wire pc_increment, pc_load, pc_push;
 	wire cmp_load, cmp_push, cmp_compare, cmp_mask_int, cmp_unmask_int;
-	wire lu_passh, lu_passl, lu_pass_high, lu_push, lu_push_high, lu_push_div, lu_push_mod,
-		  lu_add, lu_sub, lu_mul, lu_inc, lu_dec,
+	wire lu_passh, lu_passl, lu_pass_high, lu_swap, lu_push, lu_push_high, 
+		  lu_push_div, lu_push_mod, lu_add, lu_sub, lu_mul, lu_inc, lu_dec,
 		  lu_shr, lu_shl, lu_band, lu_bor, lu_bxor, lu_bnegate;
-	wire reg3_write, reg4_write;
-	wire [3:0] reg1_addr, reg2_addr, reg3_addr, reg4_addr;
+	wire reg1_write, reg2_write;
+	wire [3:0] reg1_addr, reg2_addr;
 	wire io_addr_read;
 	wire [3:0] io_addr;
 
 	register_file register_file (
 		.clk(clk),
-		.reg3_write(reg3_write),
-		.reg4_write(reg4_write),
+		.reg1_write(reg1_write),
+		.reg2_write(reg2_write),
 		
 		.reg1_addr(reg1_addr),
 		.reg2_addr(reg2_addr),
-		.reg3_addr(reg3_addr),
-		.reg4_addr(reg4_addr),
 		
-		.reg1_bus(r_bus),
-		.reg2_bus(s_bus),
-		.reg3_bus(d_bus),
-		.reg4_bus(d_addr)
+		.reg1_obus(r_bus),
+		.reg2_obus(s_bus),
+		.reg1_ibus(d_bus),
+		.reg2_ibus(d_addr)
 	);
 
 	program_counter program_counter (
@@ -82,6 +80,7 @@ module cpu(
 		.passh(lu_passh),
 		.passl(lu_passl),
 		.pass_high(lu_pass_high),
+		.swap(lu_swap),
 		.push(lu_push),
 		.push_high(lu_push_high),
 		.push_div(lu_push_div),
@@ -143,6 +142,7 @@ module cpu(
 		.lu_passh(lu_passh),
 		.lu_passl(lu_passl),
 		.lu_pass_high(lu_pass_high),
+		.lu_swap(lu_swap),
 		.lu_push(lu_push),
 		.lu_push_high(lu_push_high),
 		.lu_push_div(lu_push_div),
@@ -159,12 +159,10 @@ module cpu(
 		.lu_bxor(lu_bxor),
 		.lu_bnegate(lu_bnegate),
 	
-		.reg3_write(reg3_write),
-		.reg4_write(reg4_write),
+		.reg1_write(reg1_write),
+		.reg2_write(reg2_write),
 		.reg1_addr(reg1_addr),
 		.reg2_addr(reg2_addr),
-		.reg3_addr(reg3_addr),
-		.reg4_addr(reg4_addr),
 	
 		.flags(f_bus),
 		.d_bus(d_bus)

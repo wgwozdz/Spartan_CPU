@@ -16,8 +16,8 @@ module keyboard_driver(
 	reg cmd_send;
 	
 	(* ram_style = "distributed" *) reg [7:0] buff [31:0];
-	reg [4:0] r;
-	reg [4:0] w;
+	reg [4:0] r = 0;
+	reg [4:0] w = 0;
 	
 	assign interrupt = (r != w);
 	

@@ -27,7 +27,7 @@ module cpu(
 	wire [2:0] f_bus; // Expand as necessary.
 	wire [15:0] r_bus, s_bus;
 
-	wire pc_increment, pc_load, pc_push;
+	wire pc_increment, pc_load, pc_push, pc_push_d;
 	wire cmp_load, cmp_push, cmp_compare, cmp_mask_int, cmp_unmask_int;
 	wire lu_passh, lu_passl, lu_pass_high, lu_swap, lu_push, lu_push_high, 
 		  lu_push_div, lu_push_mod, lu_add, lu_sub, lu_mul, lu_inc, lu_dec,
@@ -56,6 +56,7 @@ module cpu(
 		.increment(pc_increment),
 		.load(pc_load),
 		.push(pc_push),
+		.push_d(pc_push_d),
 		
 		.i_addr(i_addr),
 		.d_addr(d_addr),
@@ -132,6 +133,7 @@ module cpu(
 		.pc_increment(pc_increment),
 		.pc_load(pc_load),
 		.pc_push(pc_push),
+		.pc_push_d(pc_push_d),
 		
 		.cmp_load(cmp_load),
 		.cmp_push(cmp_push),

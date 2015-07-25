@@ -21,6 +21,7 @@ module control_unit(
 	output reg pc_increment = 0,
 	output reg pc_load = 0,
 	output reg pc_push = 0,
+	output reg pc_push_d = 0,
 	
 	output reg cmp_load = 0,
 	output reg cmp_push = 0,
@@ -144,6 +145,7 @@ module control_unit(
 		pc_load <= 0;
 		pc_increment <= 0;
 		pc_push <= 0;
+		pc_push_d <= 0;
 		cmp_load <= 0;
 		cmp_push <= 0;
 		cmp_compare <= 0;
@@ -273,7 +275,7 @@ module control_unit(
 			fetch: begin
 				if (io_interrupt && !flags[2]) begin
 					cmp_mask_int <= 1;
-					pc_push <= 1;
+					pc_push_d <= 1;
 					io_store_retaddr <= 1;
 					io_push_int_addr <= 1;
 					d_read <= 1;
